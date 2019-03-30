@@ -201,7 +201,7 @@ class templatesedit
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.inc.php';
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
 
-        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->config['use_editor'] == 1) {
+        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->config['use_editor'] == 1 && $this->doc['type'] == 'document') {
             $this->richtexteditorIds[$this->evo->config['which_editor']][] = 'ta';
             $this->richtexteditorOptions[$this->evo->config['which_editor']]['ta'] = '';
         }
