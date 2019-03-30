@@ -50,7 +50,10 @@
             values.push(target.innerHTML);
             target.classList.add('selected');
           } else {
-            var r = new RegExp('[\\s' + valueSeparator + ']+');
+            var re = function(s) {
+              return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            };
+            var r = new RegExp(re(valueSeparator));
             values = field.value.split(r);
             if (target.classList.contains('selected')) {
               values.splice(values.indexOf(target.innerHTML), 1);
