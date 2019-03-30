@@ -7,7 +7,7 @@
  * @category    plugin
  * @version     3.1.0
  * @package     evo
- * @internal    @properties &showTvImage=Показывать картинки в TV;list;yes,no;yes &excludeTvCategory=Исключить TV из категорий;text &defaultTemplateType=Тип шаблона по умолчанию;list;1,2;1
+ * @internal    @properties &showTvImage=Показывать картинки в TV;list;yes,no;yes &excludeTvCategory=Исключить TV из категорий;text &defaultTemplateType=Конфигурация шаблона по умолчанию;list;1,2;1
  * @internal    @events OnDocFormTemplateRender
  * @internal    @modx_category Manager and Admin
  * @internal    @installset base,sample
