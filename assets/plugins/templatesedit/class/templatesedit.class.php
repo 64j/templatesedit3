@@ -19,10 +19,6 @@ class templatesedit
 
     public function __construct()
     {
-        //        ini_set('error_reporting', E_ALL);
-        //        ini_set('display_errors', 1);
-        //        ini_set('display_startup_errors', 1);
-
         $this->evo = evolutionCMS();
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = !empty($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
@@ -248,57 +244,6 @@ class templatesedit
                     }
                 }
 
-                //                foreach ($tab['fields'] as $fieldName => &$field) {
-                //                    if ($fieldName == 'richtext' && $this->doc['type'] == 'reference') {
-                //                        $field['hide'] = true;
-                //                    }
-                //                    if (!empty($field['split'])) {
-                //                        $tabContent .= $field['split']['title'];
-                //                        $this->counters['counter']++;
-                //                        $this->counters['split']++;
-                //                        if ($field['split']['hide']) {
-                //                            $this->counters['hide']++;
-                //                        }
-                //                    } else {
-                //                        if (!empty($field['roles'])) {
-                //                            $roles = explode(',', $field['roles']);
-                //                            foreach ($roles as $role) {
-                //                                if (($role[0] != '!' && trim($role) != $_SESSION['mgrRole']) || ($role[0] == '!' && ltrim($role, '!') == $_SESSION['mgrRole'])) {
-                //                                    $field['hide'] = true;
-                //                                }
-                //                            }
-                //                        }
-                //                        if (empty($this->doc['id']) && !isset($field['id'])) {
-                //                            if (isset($field['default'])) {
-                //                                $this->doc[$fieldName] = $field['default'];
-                //                            }
-                //                        }
-                //                        if (!empty($field['hide']) || $tab['hide']) {
-                //                            unset($this->config[$tabName]['fields'][$fieldName]);
-                //                            $this->counters['hide']++;
-                //                        } else {
-                //                            if (!isset($field['id']) && !isset($this->default_fields[$fieldName])) {
-                //                                unset($this->config[$tabName]['fields'][$fieldName]);
-                //                            } else {
-                //                                if (isset($this->default_fields[$fieldName])) {
-                //                                    if (!isset($field['title'])) {
-                //                                        $field['title'] = $this->default_fields[$fieldName]['title'];
-                //                                    }
-                //                                    if (!isset($data['help'])) {
-                //                                        $field['help'] = $this->default_fields[$fieldName]['help'];
-                //                                    }
-                //                                    array_push($added_fields, $fieldName);
-                //                                }
-                //                                $render_field = $this->renderField($fieldName, $field);
-                //                                if ($render_field) {
-                //                                    $tabContent .= $render_field;
-                //                                    $this->counters['counter']++;
-                //                                }
-                //                            }
-                //                        }
-                //                    }
-                //                }
-
                 if ($tabContent) {
                     if ($tabContent && $this->counters['split'] != $this->counters['counter']) {
                         $out .= $this->tpl('tab', [
@@ -384,7 +329,7 @@ class templatesedit
                             }
                             array_push($this->added_fields, $fieldName);
                         }
-                        $render_field = $this->renderField($fieldName, $field);
+                        $render_field = $this->renderField($fieldName, $field, $tabName);
                         if ($render_field) {
                             $out .= $render_field;
                             $this->counters['counter']++;
@@ -397,7 +342,7 @@ class templatesedit
         return $out;
     }
 
-    protected function renderField($name, $data)
+    protected function renderField($name, $data, $tabName)
     {
         global $_style, $_lang;
         $field = '';
@@ -729,11 +674,26 @@ class templatesedit
         if (!empty($field)) {
             $content = '';
 
-            if (isset($this->params['default.titleClass']) && empty($data['titleClass'])) {
-                $data['titleClass'] = $this->params['default.titleClass'];
+            if (empty($data['titleClass'])) {
+                if (isset($this->config[$tabName]['titleClass'])) {
+                    $data['titleClass'] = $this->config[$tabName]['titleClass'];
+                } elseif (isset($this->params['default.titleClass'])) {
+                    $data['titleClass'] = $this->params['default.titleClass'];
+                }
+                if (empty($data['titleClass'])) {
+                    $data['titleClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-3 col-lg-2' : '';
+                }
             }
-            if (isset($this->params['default.fieldClass']) && empty($data['fieldClass'])) {
-                $data['fieldClass'] = $this->params['default.fieldClass'];
+
+            if (empty($data['fieldClass'])) {
+                if (isset($this->config[$tabName]['fieldClass'])) {
+                    $data['fieldClass'] = $this->config[$tabName]['fieldClass'];
+                } elseif (isset($this->params['default.fieldClass'])) {
+                    $data['fieldClass'] = $this->params['default.fieldClass'];
+                }
+                if (empty($data['fieldClass'])) {
+                    $data['fieldClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-9 col-lg-10' : 'col-xs-12 col-12';
+                }
             }
 
             if (!empty($data['title']) || !empty($data['caption'])) {
@@ -764,20 +724,13 @@ class templatesedit
                     ]);
                 }
                 $content .= $this->tpl('element', [
-                    'class' => !empty($data['titleClass']) ? $data['titleClass'] : 'col-md-3 col-lg-2',
+                    'class' => $data['titleClass'],
                     'content' => $title . $help . $afterTitle
                 ]);
-                $class = 'col-md-9 col-lg-10';
-            } else {
-                $class = 'col-xs-12 col-12';
-            }
-
-            if (!empty($data['fieldClass'])) {
-                $class = $data['fieldClass'];
             }
 
             $content .= $this->tpl('element', [
-                'class' => $class,
+                'class' => $data['fieldClass'],
                 'content' => $field
             ]);
 
@@ -785,73 +738,6 @@ class templatesedit
                 'class' => 'row form-row',
                 'content' => $content
             ]);
-
-            //            if ($name == 'content') {
-            //                if (!empty($data['title'])) {
-            //                    $preContent = '';
-            //                    if ($name == 'content') {
-            //                        $options = [
-            //                            'none' => $_lang['none']
-            //                        ];
-            //                        $evtOut = $this->evo->invokeEvent("OnRichTextEditorRegister");
-            //                        if (is_array($evtOut)) {
-            //                            for ($i = 0; $i < count($evtOut); $i++) {
-            //                                $editor = $evtOut[$i];
-            //                                $options[$editor] = $editor;
-            //                            }
-            //                        }
-            //                        $preContent .= $this->tpl('element', [
-            //                            'tag' => 'label',
-            //                            'class' => 'float-xs-right',
-            //                            'content' => $_lang['which_editor_title'] . $this->form('select', [
-            //                                    'name' => 'which_editor',
-            //                                    'value' => $this->evo->config['which_editor'],
-            //                                    'options' => $options,
-            //                                    'class' => 'form-control form-control-sm ml-1',
-            //                                    'onchange' => 'changeRTE();'
-            //                                ])
-            //                        ]);
-            //                    }
-            //                    $content .= $this->tpl('element', [
-            //                        'class' => 'navbar navbar-editor',
-            //                        'content' => $title . $help . $preContent
-            //                    ]);
-            //                }
-            //
-            //                $content .= $this->tpl('element', [
-            //                    'class' => 'container',
-            //                    'content' => $field
-            //                ]);
-            //
-            //                $out .= $this->tpl('element', [
-            //                    'class' => 'row form-group',
-            //                    'content' => $content
-            //                ]);
-            //            } else {
-            //                if (!empty($data['title']) || !empty($data['caption'])) {
-            //                    $content .= $this->tpl('element', [
-            //                        'class' => !empty($data['titleClass']) ? $data['titleClass'] : 'col-md-3 col-lg-2',
-            //                        'content' => $title . $help
-            //                    ]);
-            //                    $class = 'col-md-9 col-lg-10';
-            //                } else {
-            //                    $class = 'col-xs-12 col-12';
-            //                }
-            //
-            //                if (!empty($data['fieldClass'])) {
-            //                    $class = $data['fieldClass'];
-            //                }
-            //
-            //                $content .= $this->tpl('element', [
-            //                    'class' => $class,
-            //                    'content' => $field
-            //                ]);
-            //
-            //                $out .= $this->tpl('element', [
-            //                    'class' => 'row form-row',
-            //                    'content' => $content
-            //                ]);
-            //            }
         }
 
         return $out;
