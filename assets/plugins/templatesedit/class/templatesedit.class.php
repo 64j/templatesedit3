@@ -125,6 +125,21 @@ class templatesedit
             $docgrp = implode(',', $_SESSION['mgrDocgroups']);
         }
 
+        foreach ($this->config as $k => $v) {
+            if (!empty($v['default'])) {
+                $this->params['default.tab'] = $k;
+                if (!empty($v['titleClass'])) {
+                    $this->params['default.titleClass'] = $v['titleClass'];
+                }
+                if (!empty($v['fieldClass'])) {
+                    $this->params['default.fieldClass'] = $v['fieldClass'];
+                }
+                if (!empty($v['dateGroupClass'])) {
+                    $this->params['default.dateGroupClass'] = $v['dateGroupClass'];
+                }
+            }
+        }
+
         $sql = $this->evo->db->select('
             DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
             INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
@@ -135,18 +150,6 @@ class templatesedit
 
             while ($row = $this->evo->db->getRow($sql)) {
                 foreach ($this->config as $k => &$v) {
-                    if (!empty($v['default'])) {
-                        $this->params['default.tab'] = $k;
-                        if (!empty($v['titleClass'])) {
-                            $this->params['default.titleClass'] = $v['titleClass'];
-                        }
-                        if (!empty($v['fieldClass'])) {
-                            $this->params['default.fieldClass'] = $v['fieldClass'];
-                        }
-                        if (!empty($v['dateGroupClass'])) {
-                            $this->params['default.dateGroupClass'] = $v['dateGroupClass'];
-                        }
-                    }
                     if (isset($v['fields'][$row['name']])) {
                         $field = $v['fields'][$row['name']];
                         $v['fields'][$row['name']] = $row;
