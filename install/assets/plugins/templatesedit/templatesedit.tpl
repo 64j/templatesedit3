@@ -1,3 +1,4 @@
+//<?php
 /**
  * templateEdit3
  *
