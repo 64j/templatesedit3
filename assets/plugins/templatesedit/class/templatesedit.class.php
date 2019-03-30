@@ -19,10 +19,6 @@ class templatesedit
 
     public function __construct()
     {
-        //        ini_set('error_reporting', E_ALL);
-        //        ini_set('display_errors', 1);
-        //        ini_set('display_startup_errors', 1);
-
         $this->evo = evolutionCMS();
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = !empty($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
@@ -684,6 +680,9 @@ class templatesedit
                 } elseif (isset($this->params['default.titleClass'])) {
                     $data['titleClass'] = $this->params['default.titleClass'];
                 }
+                if (empty($data['titleClass'])) {
+                    $data['titleClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-3 col-lg-2' : '';
+                }
             }
 
             if (empty($data['fieldClass'])) {
@@ -691,6 +690,9 @@ class templatesedit
                     $data['fieldClass'] = $this->config[$tabName]['fieldClass'];
                 } elseif (isset($this->params['default.fieldClass'])) {
                     $data['fieldClass'] = $this->params['default.fieldClass'];
+                }
+                if (empty($data['fieldClass'])) {
+                    $data['fieldClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-9 col-lg-10' : 'col-xs-12 col-12';
                 }
             }
 
@@ -722,20 +724,13 @@ class templatesedit
                     ]);
                 }
                 $content .= $this->tpl('element', [
-                    'class' => !empty($data['titleClass']) ? $data['titleClass'] : 'col-md-3 col-lg-2',
+                    'class' => $data['titleClass'],
                     'content' => $title . $help . $afterTitle
                 ]);
-                $class = 'col-md-9 col-lg-10';
-            } else {
-                $class = 'col-xs-12 col-12';
-            }
-
-            if (!empty($data['fieldClass'])) {
-                $class = $data['fieldClass'];
             }
 
             $content .= $this->tpl('element', [
-                'class' => $class,
+                'class' => $data['fieldClass'],
                 'content' => $field
             ]);
 
