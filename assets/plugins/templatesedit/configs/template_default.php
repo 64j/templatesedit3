@@ -39,9 +39,6 @@ return [
     ],
     'TVs' => [
         'default' => true,
-        'titleClass' => 'col-xs-12',
-        'fieldClass' => 'col-xs-12',
-        'dateGroupClass' => 'd-block',
         'title' => 'TVs'
     ],
     'Seo' => [
