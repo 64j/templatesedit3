@@ -175,6 +175,7 @@ class templatesedit
                             $v['fields'][$row['name']]['value'] = $v['fields'][$row['name']]['default_text'];
                         }
                         unset($row);
+                        break;
                     }
                 }
 
@@ -348,8 +349,9 @@ class templatesedit
         $field = '';
         $required = !empty($data['required']) ? ' required' : '';
         $help = !empty($data['help']) ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
+        $title = isset($data['title']) ? $data['title'] : '';
 
-        list($item_title, $item_description) = explode('||||', $data['title'] . '||||');
+        list($item_title, $item_description) = explode('||||', $title . '||||');
         $fieldDescription = (!empty($item_description)) ? '<br><span class="comment">' . $item_description . '</span>' : '';
 
         if (isset($this->default_fields[$name])) {
