@@ -45,12 +45,8 @@ return [
             'titl' => [],
             'metaDescription' => [],
             'desc' => [],
-            'metaKeywords' => [
-                'choices' => true
-            ],
-            'keyw' => [
-                'choices' => true
-            ],
+            'metaKeywords' => [],
+            'keyw' => [],
             'alias' => [],
             'link_attributes' => [],
             'menuindex' => [],
