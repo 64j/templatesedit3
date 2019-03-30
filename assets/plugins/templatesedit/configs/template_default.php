@@ -3,9 +3,10 @@
  * default config
  */
 
-global $content, $_lang;
+global $_lang;
 
 return [
+    'default' => true,
     'General' => [
         'title' => $_lang['settings_general'],
         'fields' => [
@@ -21,7 +22,7 @@ return [
         ]
     ],
     'Content' => [
-        'title' => 'Описание',
+        'title' => $_lang['description'],
         'fields' => [
             'introtext' => [
                 'titleClass' => 'col-xs-12',
@@ -37,10 +38,6 @@ return [
             'richtext' => [],
         ]
     ],
-    'TVs' => [
-        'default' => true,
-        'title' => 'TVs'
-    ],
     'Seo' => [
         'title' => 'SEO',
         'fields' => [
@@ -48,9 +45,7 @@ return [
             'titl' => [],
             'metaDescription' => [],
             'desc' => [],
-            'metaKeywords' => [
-                'choices' => true
-            ],
+            'metaKeywords' => [],
             'keyw' => [],
             'alias' => [],
             'link_attributes' => [],

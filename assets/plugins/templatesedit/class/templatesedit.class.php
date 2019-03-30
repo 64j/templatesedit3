@@ -32,6 +32,18 @@ class templatesedit
     public function renderTemplate($doc = [])
     {
         $this->doc = $doc;
+
+        $this->setDefaults();
+        $this->getConfig();
+
+        return $this->tpl('documentWrap', [
+            'content' => $this->renderFields(),
+            'MODX_SITE_URL' => MODX_SITE_URL
+        ]);
+    }
+
+    protected function setDefaults()
+    {
         $this->doc['template'] = $this->getTemplateId();
 
         if (isset($_REQUEST['pid'])) {
@@ -74,13 +86,9 @@ class templatesedit
 
         $this->doc['syncsite'] = 1;
 
-        $this->setDefaultFields();
-        $this->getConfig();
+        $this->default_fields = require_once $this->basePath . 'configs/fields.php';
 
-        return $this->tpl('documentWrap', [
-            'content' => $this->renderFields(),
-            'MODX_SITE_URL' => MODX_SITE_URL
-        ]);
+        return $this->default_fields;
     }
 
     protected function getTemplateId()
@@ -92,13 +100,6 @@ class templatesedit
         }
 
         return $this->doc['template'];
-    }
-
-    protected function setDefaultFields()
-    {
-        $this->default_fields = require_once $this->basePath . 'configs/fields.php';
-
-        return $this->default_fields;
     }
 
     protected function getConfig()
@@ -189,6 +190,29 @@ class templatesedit
         }
 
         return $this->config;
+    }
+
+    protected function tpl($tpl, $data = [])
+    {
+        if (file_exists($this->basePath . 'tpl/' . $tpl . '.tpl')) {
+            $out = file_get_contents($this->basePath . 'tpl/' . $tpl . '.tpl');
+        } else {
+            $out = 'File "' . $tpl . '" not found.';
+        }
+
+        if ($tpl == 'element' && !isset($data['tag'])) {
+            $data['tag'] = 'div';
+        }
+
+        foreach ($data as $k => $v) {
+            if (!is_array($v)) {
+                $out = str_replace('[+' . $k . '+]', $v, $out);
+            }
+        }
+
+        $out = preg_replace('~\[\+(.*?)\+\]~', '', $out);
+
+        return $out;
     }
 
     protected function renderFields()
@@ -741,29 +765,6 @@ class templatesedit
                 'content' => $content
             ]);
         }
-
-        return $out;
-    }
-
-    protected function tpl($tpl, $data = [])
-    {
-        if (file_exists($this->basePath . 'tpl/' . $tpl . '.tpl')) {
-            $out = file_get_contents($this->basePath . 'tpl/' . $tpl . '.tpl');
-        } else {
-            $out = 'File "' . $tpl . '" not found.';
-        }
-
-        if ($tpl == 'element' && !isset($data['tag'])) {
-            $data['tag'] = 'div';
-        }
-
-        foreach ($data as $k => $v) {
-            if (!is_array($v)) {
-                $out = str_replace('[+' . $k . '+]', $v, $out);
-            }
-        }
-
-        $out = preg_replace('~\[\+(.*?)\+\]~', '', $out);
 
         return $out;
     }
