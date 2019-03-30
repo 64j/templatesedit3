@@ -175,6 +175,7 @@ class templatesedit
                             $v['fields'][$row['name']]['value'] = $v['fields'][$row['name']]['default_text'];
                         }
                         unset($row);
+                        break;
                     }
                 }
 
@@ -200,7 +201,7 @@ class templatesedit
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.inc.php';
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
 
-        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->config['use_editor'] == 1) {
+        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->config['use_editor'] == 1 && $this->doc['type'] == 'document') {
             $this->richtexteditorIds[$this->evo->config['which_editor']][] = 'ta';
             $this->richtexteditorOptions[$this->evo->config['which_editor']]['ta'] = '';
         }
@@ -344,12 +345,13 @@ class templatesedit
 
     protected function renderField($name, $data, $tabName)
     {
-        global $_style, $_lang;
+        global $_lang;
         $field = '';
         $required = !empty($data['required']) ? ' required' : '';
         $help = !empty($data['help']) ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
+        $title = isset($data['title']) ? $data['title'] : '';
 
-        list($item_title, $item_description) = explode('||||', $data['title'] . '||||');
+        list($item_title, $item_description) = explode('||||', $title . '||||');
         $fieldDescription = (!empty($item_description)) ? '<br><span class="comment">' . $item_description . '</span>' : '';
 
         if (isset($this->default_fields[$name])) {
@@ -407,7 +409,7 @@ class templatesedit
                             'class' => $data['class'],
                             'dateGroupClass' => $this->params['default.dateGroupClass'],
                             'placeholder' => $this->evo->config['datetime_format'] . ' HH:MM:SS',
-                            'icon' => $_style['actions_calendar_delete'],
+                            'icon' => 'fa fa-calendar-times-o',
                             'icon.title' => $_lang['remove_date']
                         ]);
                         break;
@@ -460,7 +462,7 @@ class templatesedit
                             $field .= $this->tpl('element', [
                                 'tag' => 'i',
                                 'id' => 'llock',
-                                'class' => $_style['actions_chain'],
+                                'class' => 'fa fa-chain',
                                 'attr' => 'onclick="enableLinkSelection(!allowLinkSelection);"'
                             ]);
                             $field .= $this->form('input', [
@@ -514,7 +516,7 @@ class templatesedit
                             'content' => $this->tpl('element', [
                                     'tag' => 'i',
                                     'id' => 'plock',
-                                    'class' => $_style['actions_folder'],
+                                    'class' => 'fa fa-folder-o',
                                     'attr' => 'onclick="enableParentSelection(!allowParentSelection);"'
                                 ]) . $this->tpl('element', [
                                     'tag' => 'b',
