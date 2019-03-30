@@ -345,7 +345,7 @@ class templatesedit
 
     protected function renderField($name, $data, $tabName)
     {
-        global $_style, $_lang;
+        global $_lang;
         $field = '';
         $required = !empty($data['required']) ? ' required' : '';
         $help = !empty($data['help']) ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
@@ -409,7 +409,7 @@ class templatesedit
                             'class' => $data['class'],
                             'dateGroupClass' => $this->params['default.dateGroupClass'],
                             'placeholder' => $this->evo->config['datetime_format'] . ' HH:MM:SS',
-                            'icon' => $_style['actions_calendar_delete'],
+                            'icon' => 'fa fa-calendar-times-o',
                             'icon.title' => $_lang['remove_date']
                         ]);
                         break;
@@ -462,7 +462,7 @@ class templatesedit
                             $field .= $this->tpl('element', [
                                 'tag' => 'i',
                                 'id' => 'llock',
-                                'class' => $_style['actions_chain'],
+                                'class' => 'fa fa-chain',
                                 'attr' => 'onclick="enableLinkSelection(!allowLinkSelection);"'
                             ]);
                             $field .= $this->form('input', [
@@ -516,7 +516,7 @@ class templatesedit
                             'content' => $this->tpl('element', [
                                     'tag' => 'i',
                                     'id' => 'plock',
-                                    'class' => $_style['actions_folder'],
+                                    'class' => 'fa fa-folder-o',
                                     'attr' => 'onclick="enableParentSelection(!allowParentSelection);"'
                                 ]) . $this->tpl('element', [
                                     'tag' => 'b',
