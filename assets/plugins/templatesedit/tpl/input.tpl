@@ -1,0 +1,1 @@
+<input type="[+type+]" id="[+id+]" class="[+class+]" name="[+name+]" maxlength="[+maxlength+]" value="[+value+]" onchange="[+onchange+]" [+attr+] />
