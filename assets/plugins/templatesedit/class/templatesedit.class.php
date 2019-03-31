@@ -498,7 +498,7 @@ class templatesedit
                         break;
 
                     case 'template':
-                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', '', 'c.category, t.templatename ASC');
+                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=1', 'c.category, t.templatename ASC');
                         $optgroup = [];
                         while ($row = $this->evo->db->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
