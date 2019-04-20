@@ -1,1 +1,0 @@
-<button type="button" class="btn" [+attr+]>[+value+]</button>

@@ -1,2 +1,0 @@
-<div id="image_for_tv[+id+]" class="image_for_tv" data-image="[+value+]" onclick="BrowseServer('tv[+id+]')" style="background-image: url('[+value+]');"></div>
-<script>document.getElementById('tv[+id+]').addEventListener('change', renderTvImageCheck, false);</script>

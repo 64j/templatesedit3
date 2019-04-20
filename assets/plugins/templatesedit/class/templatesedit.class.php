@@ -4,6 +4,10 @@
  * @author 64j <64j@mail.ru>
  */
 
+//error_reporting(E_ALL);
+//ini_set("display_error", true);
+//ini_set("error_reporting", E_ALL);
+
 class templatesedit
 {
     protected $evo;
@@ -15,18 +19,19 @@ class templatesedit
     protected $richtexteditorIds = [];
     protected $default_fields = [];
     protected $added_fields = [];
-    protected $counters = [];
+    protected $categories = [];
+    protected $tvars = [];
 
     public function __construct()
     {
         $this->evo = evolutionCMS();
         $this->params = $this->evo->event->params;
-        $this->params['showTvImage'] = !empty($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
-        $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? explode(',', $this->params['excludeTvCategory']) : [];
-        $this->params['defaultTemplateType'] = !empty($this->params['defaultTemplateType']) && $this->params['defaultTemplateType'] == 1 ? 'default' : 'default_' . $this->params['defaultTemplateType'];
+        $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
+        $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map('trim', explode(',', $this->params['excludeTvCategory'])) : [];
         // default
-        $this->params['default.tab'] = 'General';
-        $this->params['default.dateGroupClass'] = '';
+        $this->params['default.tab'] = false;
+        $this->params['role'] = $_SESSION['mgrRole'];
+        $this->params['col.settings'] = [];
     }
 
     public function renderTemplate($doc = [])
@@ -35,10 +40,10 @@ class templatesedit
 
         $this->setDefaults();
         $this->getConfig();
+        $this->getTemplateVariables();
 
-        return $this->tpl('documentWrap', [
-            'content' => $this->renderFields(),
-            'MODX_SITE_URL' => MODX_SITE_URL
+        return $this->view('document', [
+            'content' => $this->renderTabs()
         ]);
     }
 
@@ -46,8 +51,44 @@ class templatesedit
     {
         $this->doc['template'] = $this->getTemplateId();
 
+        if (!isset($_REQUEST['id'])) {
+            $this->doc['id'] = 0;
+        }
+
         if (isset($_REQUEST['pid'])) {
             $this->doc['parent'] = $_REQUEST['pid'];
+        }
+
+        if (!isset($this->doc['pagetitle'])) {
+            $this->doc['pagetitle'] = '';
+        }
+
+        if (!isset($this->doc['longtitle'])) {
+            $this->doc['longtitle'] = '';
+        }
+
+        if (!isset($this->doc['description'])) {
+            $this->doc['description'] = '';
+        }
+
+        if (!isset($this->doc['menutitle'])) {
+            $this->doc['menutitle'] = '';
+        }
+
+        if (!isset($this->doc['introtext'])) {
+            $this->doc['introtext'] = '';
+        }
+
+        if (!isset($this->doc['content'])) {
+            $this->doc['content'] = '';
+        }
+
+        if (!isset($this->doc['alias'])) {
+            $this->doc['alias'] = '';
+        }
+
+        if (!isset($this->doc['link_attributes'])) {
+            $this->doc['link_attributes'] = '';
         }
 
         if ($this->evo->manager->action == 85 || (isset($_REQUEST['isfolder']) && $_REQUEST['isfolder'] == 1)) {
@@ -78,7 +119,7 @@ class templatesedit
             $this->doc['cacheable'] = 1;
         }
 
-        if ($this->doc['richtext'] == 0 && $this->evo->manager->action == 27) {
+        if (isset($this->doc['richtext']) && $this->doc['richtext'] == 0 && $this->evo->manager->action == 27) {
             $this->doc['richtext'] = 0;
         } else {
             $this->doc['richtext'] = 1;
@@ -105,14 +146,27 @@ class templatesedit
     protected function getConfig()
     {
         $this->config = [];
+        $json = '';
 
-        if (file_exists($this->basePath . 'configs/template_' . $this->doc['template'] . '.php')) {
-            $this->config = require_once $this->basePath . 'configs/template_' . $this->doc['template'] . '.php';
-        } else {
-            $this->config = require_once $this->basePath . 'configs/template_' . $this->params['defaultTemplateType'] . '.php';
+        if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] . '.json')) {
+            $json = $this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] . '.json';
+        } elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '__1.json')) {
+            $json = $this->basePath . 'configs/template__' . $this->doc['template'] . '__1.json';
+        } elseif ($file = glob($this->basePath . 'configs/template_*_default.json')) {
+            $json = $file[0];
         }
 
-        return $this->getTemplateVariables();
+        if ($json) {
+            $this->config = json_decode(file_get_contents($json), true);
+        } else {
+            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
+                $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template'] . '.php';
+            } else {
+                $this->config = require_once $this->basePath . 'configs/template__default.php';
+            }
+        }
+
+        return $this->config;
     }
 
     protected function getTemplateVariables()
@@ -122,69 +176,50 @@ class templatesedit
             $docgrp = implode(',', $_SESSION['mgrDocgroups']);
         }
 
-        foreach ($this->config as $k => $v) {
-            if (!empty($v['default'])) {
-                $this->params['default.tab'] = $k;
-                if (!empty($v['titleClass'])) {
-                    $this->params['default.titleClass'] = $v['titleClass'];
-                }
-                if (!empty($v['fieldClass'])) {
-                    $this->params['default.fieldClass'] = $v['fieldClass'];
-                }
-                if (!empty($v['dateGroupClass'])) {
-                    $this->params['default.dateGroupClass'] = $v['dateGroupClass'];
+        $sql = $this->evo->db->select('
+        DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
+        INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid="' . $this->doc['id'] . '"
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid="' . $this->doc['template'] . '" AND (1="' . $_SESSION['mgrRole'] . '" OR ISNULL(tva.documentgroup)' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
+
+        if ($this->evo->db->getRecordCount($sql)) {
+            while ($row = $this->evo->db->getRow($sql)) {
+                $this->categories[$row['category']][$row['name']] = $row;
+                $this->tvars[$row['name']] = $row;
+            }
+        }
+
+        foreach ($this->config as $tabId => &$tab) {
+            if (!empty($tab['default'])) {
+                $this->params['default.tab'] = $tabId;
+            }
+            if (isset($tab['fields'])) {
+                $tab['col:0:12']['fields'] = $tab['fields'];
+                unset($tab['fields']);
+            }
+            foreach ($tab as $colId => $col) {
+                if (is_array($col)) {
+                    foreach ($col as $fieldsId => $fields) {
+                        if (substr($fieldsId, 0, 7) == 'fields:') {
+                            foreach ($fields as $key => $field) {
+                                if (isset($this->tvars[$key])) {
+                                    unset($this->categories[$this->tvars[$key]['category']][$key]);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        $sql = $this->evo->db->select('
-            DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
-            INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
-            LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid="' . $this->doc['id'] . '"
-            LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid="' . $this->doc['template'] . '" AND (1="' . $_SESSION['mgrRole'] . '" OR ISNULL(tva.documentgroup)' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
-
-        if ($this->evo->db->getRecordCount($sql)) {
-
-            while ($row = $this->evo->db->getRow($sql)) {
-                foreach ($this->config as $k => &$v) {
-                    if (isset($v['fields'][$row['name']])) {
-                        $field = $v['fields'][$row['name']];
-                        $v['fields'][$row['name']] = $row;
-                        if (isset($field['help'])) {
-                            $v['fields'][$row['name']]['help'] = $field['help'];
-                        }
-                        if (isset($field['title'])) {
-                            $v['fields'][$row['name']]['caption'] = $field['title'];
-                            $v['fields'][$row['name']]['description'] = '';
-                        }
-                        if (!empty($field['required'])) {
-                            $v['fields'][$row['name']]['required'] = true;
-                        }
-                        if (!empty($field['choices'])) {
-                            $v['fields'][$row['name']]['choices'] = $field['choices'];
-                        }
-                        if (!empty($field['hide'])) {
-                            $v['fields'][$row['name']]['hide'] = true;
-                        }
-                        if (isset($field['default'])) {
-                            $v['fields'][$row['name']]['default_text'] = $field['default'];
-                        }
-                        if (isset($field['default_text'])) {
-                            $v['fields'][$row['name']]['default_text'] = $field['default_text'];
-                        }
-                        if (empty($this->doc['id'])) {
-                            $v['fields'][$row['name']]['value'] = $v['fields'][$row['name']]['default_text'];
-                        }
-                        unset($row);
-                        break;
-                    }
-                }
-
-                if (!empty($row) && !in_array($row['category'], $this->params['excludeTvCategory'])) {
-                    if (!isset($this->config[$this->params['default.tab']]['fields'])) {
-                        $this->config[$this->params['default.tab']]['fields'] = [];
-                    }
-                    $this->config[$this->params['default.tab']]['fields'][$row['name']] = $row;
+        if (!empty($this->categories) && !empty($this->params['default.tab'])) {
+//            $this->config[$this->params['default.tab']]['col:0:12'] = [
+//                'fields:0' => []
+//            ];
+            $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] = [];
+            foreach ($this->categories as $k => $fields) {
+                if (!in_array($k, $this->params['excludeTvCategory'])) {
+                    $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] += $fields;
                 }
             }
         }
@@ -192,30 +227,7 @@ class templatesedit
         return $this->config;
     }
 
-    protected function tpl($tpl, $data = [])
-    {
-        if (file_exists($this->basePath . 'tpl/' . $tpl . '.tpl')) {
-            $out = file_get_contents($this->basePath . 'tpl/' . $tpl . '.tpl');
-        } else {
-            $out = 'File "' . $tpl . '" not found.';
-        }
-
-        if ($tpl == 'element' && !isset($data['tag'])) {
-            $data['tag'] = 'div';
-        }
-
-        foreach ($data as $k => $v) {
-            if (!is_array($v)) {
-                $out = str_replace('[+' . $k . '+]', $v, $out);
-            }
-        }
-
-        $out = preg_replace('~\[\+(.*?)\+\]~', '', $out);
-
-        return $out;
-    }
-
-    protected function renderFields()
+    protected function renderTabs()
     {
         global $_lang, $richtexteditorIds, $richtexteditorOptions;
 
@@ -231,53 +243,18 @@ class templatesedit
         }
 
         foreach ($this->config as $tabName => &$tab) {
-            if ($tabName == 'General' && empty($tab['title'])) {
-                $tab['title'] = $_lang['settings_general'];
-            }
-            if (!empty($tab['roles'])) {
-                $roles = explode(',', $tab['roles']);
-                foreach ($roles as $role) {
-                    if (($role[0] != '!' && trim($role) != $_SESSION['mgrRole']) || ($role[0] == '!' && ltrim($role, '!') == $_SESSION['mgrRole'])) {
-                        $tab['hide'] = true;
-                    }
-                }
-            }
-
             if ($tab['title']) {
-                $tabContent = '';
-                $this->counters['counter'] = 0;
-                $this->counters['split'] = 0;
-                $this->counters['hide'] = 0;
-
-                foreach ($tab as $k => $fields) {
-                    if ($k == 'cols') {
-                        $cols = '';
-                        foreach ($fields as $col) {
-                            if (!empty($col['fields'])) {
-                                $cols .= $this->tpl('element', [
-                                    'class' => !empty($col['class']) ? $col['class'] : 'col-12 col-xs-12',
-                                    'content' => $this->renderTab($col['fields'], $tabName)
-                                ]);
-                            }
-                        }
-                        $tabContent .= $this->tpl('element', [
-                            'class' => 'row form-row',
-                            'content' => $cols
-                        ]);
-                    } elseif ($k == 'fields') {
-                        $tabContent .= $this->renderTab($fields, $tabName);
-                    }
-                }
-
+                $tabContent = $this->renderTab($tab);
                 if ($tabContent) {
-                    if ($tabContent && $this->counters['split'] != $this->counters['counter']) {
-                        $out .= $this->tpl('tab', [
-                            'name' => $tabName,
-                            'title' => $tab['title'],
-                            'tabsObject' => 'tpSettings',
+                    $out .= $this->view('tab', [
+                        'name' => $tabName,
+                        'title' => $tab['title'],
+                        'tabsObject' => 'tpSettings',
+                        'content' => $this->view('element', [
+                            'class' => 'row form-row',
                             'content' => $tabContent
-                        ]);
-                    }
+                        ])
+                    ]);
                 } else {
                     unset($this->config[$tabName]);
                 }
@@ -306,59 +283,95 @@ class templatesedit
         return $out;
     }
 
-    protected function renderTab($fields, $tabName)
+    protected function renderTab($tab, $settings = [])
+    {
+        $out = '';
+        foreach ($tab as $k => $fields) {
+            list($type, $id) = explode(':', $k . ':');
+            switch ($type) {
+                case 'category':
+                    if (!empty($this->categories[$id])) {
+                        $out .= $this->renderTab([
+                            'fields' => $this->categories[$id]
+                        ], $settings);
+                    }
+                    break;
+
+                case 'col':
+                    $out .= $this->renderCol($fields, $k);
+                    break;
+
+                case 'fields':
+                    $out .= $this->renderFields($fields, $k, $settings);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return $out;
+    }
+
+    protected function renderCol($data = [], $key = '')
+    {
+        $settings = [];
+        $title = '';
+        list($type, $id, $col) = explode(':', $key);
+
+        if (isset($data['settings'])) {
+            $settings = $data['settings'];
+
+            if (isset($settings['title']) && $settings['title'] != '') {
+                $title = $this->view('element', [
+                    'class' => 'col-12',
+                    'content' => $settings['title']
+                ]);
+            }
+
+            unset($data['settings']);
+        }
+
+        return $this->view('element', [
+            'class' => 'row-col col-lg-' . $col . ($col > 3 && $col < 9 ? ' col-md-6 col-12' : ' col-12'),
+            'content' => $title . $this->renderTab($data, $settings)
+        ]);
+    }
+
+    protected function renderFields($fields, $tabName, $settings = [])
     {
         $out = '';
 
         foreach ($fields as $fieldName => $field) {
-            if ($fieldName == 'richtext' && $this->doc['type'] == 'reference') {
-                $field['hide'] = true;
+            if (isset($this->tvars[$fieldName])) {
+                $field = array_merge($this->tvars[$fieldName], $field);
             }
             if (!isset($field['class'])) {
                 $field['class'] = '';
             }
             if (isset($field['type']) && ($field['type'] == 'split' || $field['type'] == 'splitter')) {
                 $out .= $field['title'];
-                $this->counters['counter']++;
-                $this->counters['split']++;
-                if (!empty($field['hide'])) {
-                    $this->counters['hide']++;
-                }
             } else {
-                if (!empty($field['roles'])) {
-                    $roles = explode(',', $field['roles']);
-                    foreach ($roles as $role) {
-                        if (($role[0] != '!' && trim($role) != $_SESSION['mgrRole']) || ($role[0] == '!' && ltrim($role, '!') == $_SESSION['mgrRole'])) {
-                            $field['hide'] = true;
-                        }
-                    }
-                }
                 if (empty($this->doc['id']) && !isset($field['id'])) {
                     if (isset($field['default'])) {
                         $this->doc[$fieldName] = $field['default'];
                     }
                 }
-                if (!empty($field['hide']) || !empty($this->config[$tabName]['hide'])) {
+                if (!isset($field['id']) && !isset($this->default_fields[$fieldName])) {
                     unset($this->config[$tabName]['fields'][$fieldName]);
-                    $this->counters['hide']++;
                 } else {
-                    if (!isset($field['id']) && !isset($this->default_fields[$fieldName])) {
-                        unset($this->config[$tabName]['fields'][$fieldName]);
-                    } else {
-                        if (isset($this->default_fields[$fieldName])) {
-                            if (!isset($field['title'])) {
-                                $field['title'] = $this->default_fields[$fieldName]['title'];
-                            }
-                            if (!isset($data['help'])) {
-                                $field['help'] = $this->default_fields[$fieldName]['help'];
-                            }
-                            array_push($this->added_fields, $fieldName);
+                    if (isset($this->default_fields[$fieldName])) {
+                        if (!isset($field['title'])) {
+                            $field['title'] = $this->default_fields[$fieldName]['title'];
                         }
-                        $render_field = $this->renderField($fieldName, $field, $tabName);
-                        if ($render_field) {
-                            $out .= $render_field;
-                            $this->counters['counter']++;
+                        if (!isset($field['help'])) {
+                            $field['help'] = $this->default_fields[$fieldName]['help'];
                         }
+                        array_push($this->added_fields, $fieldName);
+                    }
+                    $render_field = $this->renderField($fieldName, $field, $settings);
+                    if ($render_field) {
+                        $out .= $render_field;
                     }
                 }
             }
@@ -367,34 +380,78 @@ class templatesedit
         return $out;
     }
 
-    protected function renderField($name, $data, $tabName)
+    protected function renderField($key, $data, $settings = [])
     {
         global $_lang;
+
+        $out = '';
         $field = '';
-        $required = !empty($data['required']) ? ' required' : '';
-        $help = !empty($data['help']) ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
-        $title = isset($data['title']) ? $data['title'] : '';
+        $value = '';
+        $rowClass = '';
+        $leftClass = '';
+        $rightClass = '';
+        $labelFor = $key;
+        $isTv = false;
 
-        list($item_title, $item_description) = explode('||||', $title . '||||');
-        $fieldDescription = (!empty($item_description)) ? '<br><span class="comment">' . $item_description . '</span>' : '';
+        $data['title'] = isset($data['title']) ? $data['title'] : '';
+        $data['caption'] = isset($data['caption']) ? $data['caption'] : '';
+        $data['help'] = isset($data['help']) && $data['help'] != '' ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
+        $data['description'] = isset($data['description']) && $data['description'] != '' ? '<span class="comment d-block">' . $data['description'] . '</span>' : '';
+        $data['pattern'] = isset($data['pattern']) ? ' pattern="' . $data['pattern'] . '"' : '';
+        $data['required'] = !empty($data['required']) ? ' required' : '';
 
-        if (isset($this->default_fields[$name])) {
-            $title = '<label for="' . $name . '" class="warning">' . $item_title . '</label>' . $fieldDescription;
-
-            if (isset($data['type'])) {
+        if (isset($this->default_fields[$key])) {
+            if (isset($data['type']) && $key != 'weblink') {
+                $rowClass .= ' form-row-' . $data['type'];
                 $default = isset($data['default']) ? $data['default'] : '';
-                $elements = !empty($data['elements']) ? $data['elements'] : '';
-                $value = isset($this->doc[$name]) && $this->doc[$name] != '' ? $this->doc[$name] : $default;
-                $renderField = renderFormElement($data['type'], $name, $default, $elements, $value, '', $data);
-                if ($required) {
-                    $renderField = str_replace([' id="tv', ' name="tv'], [' id="', $required . ' name="'], $renderField);
+                $elements = isset($data['elements']) ? $data['elements'] : '';
+                $value = isset($this->doc[$key]) ? $this->doc[$key] : $default;
+                $field = renderFormElement($data['type'], $key, $default, $elements, $value, '', $data);
+                $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
+                if (!empty($data['rows']) && is_numeric($data['rows'])) {
+                    $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
                 }
-                if (!empty($data['rows'])) {
-                    $renderField = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $renderField);
+                switch ($data['type']) {
+                    case 'date':
+                        $field = str_replace(['DatePicker', 'onclick="', '.elements[\'tv'], ['form-control DatePicker', 'class="form-control" onclick="', '.elements[\''], $field);
+                        break;
+
+                    case 'text':
+                    case 'textarea':
+                    case 'textareamini':
+                    case 'richtext':
+                    case 'listbox':
+                    case 'listbox-multiple':
+                    case 'option':
+                    case 'checkbox':
+                    case 'number':
+                        $field = str_replace('name="', 'class="form-control" name="', $field);
+                        break;
+
+                    case 'image':
+                    case 'file':
+                        $field = str_replace(['name="', 'type="button"', 'BrowseServer(\'tv', 'BrowseFileServer(\'tv'], ['class="form-control" name="', 'class="form-control" type="button"', 'BrowseServer(\'', 'BrowseFileServer(\''], $field);
+                        break;
+
+                    case 'dropdown':
+                        $field = str_replace(['name="', 'size="1"'], ['class="form-control" name="', ''], $field);
+                        break;
+
+                    default:
+                        break;
                 }
-                $field .= $renderField;
+
+                if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
+                    $tvOptions = $this->evo->parseProperties($data['elements']);
+                    $editor = $this->evo->config['which_editor'];
+                    if (!empty($tvOptions)) {
+                        $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $this->evo->config['which_editor'];
+                    };
+                    $this->richtexteditorIds[$editor][] = $key;
+                    $this->richtexteditorOptions[$editor][$key] = $tvOptions;
+                }
             } else {
-                switch ($name) {
+                switch ($key) {
                     case 'published':
                     case 'richtext':
                     case 'donthit':
@@ -404,21 +461,23 @@ class templatesedit
                     case 'alias_visible':
                     case 'isfolder':
                     case 'hidemenu':
-                        $value = empty($this->doc[$name]) ? 0 : 1;
-                        if ($name == 'donthit' || $name == 'hidemenu') {
+                        $rowClass .= ' form-row-checkbox';
+                        $labelFor .= 'check';
+                        $value = empty($this->doc[$key]) ? 0 : 1;
+                        if ($key == 'donthit' || $key == 'hidemenu') {
                             $checked = !$value ? 'checked' : '';
                         } else {
                             $checked = $value ? 'checked' : '';
                         }
                         $field .= $this->form('input', [
                             'type' => 'checkbox',
-                            'name' => $name . 'check',
-                            'class' => 'form-checkbox ' . $data['class'],
-                            'attr' => 'onclick="changestate(document.mutate.' . $name . ');" ' . $checked . $required
+                            'name' => $key . 'check',
+                            'class' => 'form-checkbox form-control ' . $data['class'],
+                            'attr' => 'onclick="changestate(document.mutate.' . $key . ');" ' . $checked . $data['required']
                         ]);
                         $field .= $this->form('input', [
                             'type' => 'hidden',
-                            'name' => $name,
+                            'name' => $key,
                             'value' => $value
                         ]);
                         break;
@@ -427,11 +486,11 @@ class templatesedit
                     case 'unpub_date':
                     case 'createdon':
                     case 'editedon':
+                        $rowClass .= ' form-row-date';
                         $field .= $this->form('date', [
-                            'name' => $name,
-                            'value' => ((isset($this->doc[$name]) && $this->doc[$name] == 0) || !isset($this->doc[$name]) ? '' : $this->evo->toDateFormat($this->doc[$name])),
+                            'name' => $key,
+                            'value' => ((isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->evo->toDateFormat($this->doc[$key])),
                             'class' => $data['class'],
-                            'dateGroupClass' => $this->params['default.dateGroupClass'],
                             'placeholder' => $this->evo->config['datetime_format'] . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
                             'icon.title' => $_lang['remove_date']
@@ -440,25 +499,23 @@ class templatesedit
 
                     case 'menusort':
                     case 'menuindex':
-                        $field .= $this->tpl('element', [
-                            'class' => 'input-group',
-                            'content' => $this->tpl('element', [
-                                    'class' => 'input-group-btn',
-                                    'content' => $this->tpl('element', [
-                                            'tag' => 'span',
-                                            'class' => 'btn btn-secondary fa fa-angle-left',
-                                            'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
-                                        ]) . $this->tpl('element', [
-                                            'tag' => 'span',
-                                            'class' => 'btn btn-secondary fa fa-angle-right',
-                                            'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
-                                        ])
-                                ]) . $this->form('input', [
-                                    'name' => $name,
-                                    'value' => $this->doc['menuindex'],
-                                    'maxlength' => 6
-                                ])
-                        ]);
+                        $rightClass .= 'input-group';
+                        $field .= $this->view('element', [
+                                'class' => 'input-group-btn',
+                                'content' => $this->view('element', [
+                                        'tag' => 'span',
+                                        'class' => 'btn btn-secondary fa fa-angle-left',
+                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
+                                    ]) . $this->view('element', [
+                                        'tag' => 'span',
+                                        'class' => 'btn btn-secondary fa fa-angle-right',
+                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
+                                    ])
+                            ]) . $this->form('input', [
+                                'name' => $key,
+                                'value' => $this->doc['menuindex'],
+                                'maxlength' => 6
+                            ]);
                         break;
 
                     case 'introtext':
@@ -471,7 +528,7 @@ class templatesedit
                         break;
 
                     case 'content':
-                        if ($this->doc['type'] == 'document') {
+                        if ($this->doc['type'] != 'reference') {
                             $field .= $this->form('textarea', [
                                 'name' => 'ta',
                                 'value' => $this->evo->htmlspecialchars(stripslashes($this->doc['content'])),
@@ -483,7 +540,7 @@ class templatesedit
 
                     case 'weblink':
                         if ($this->doc['type'] == 'reference') {
-                            $field .= $this->tpl('element', [
+                            $field .= $this->view('element', [
                                 'tag' => 'i',
                                 'id' => 'llock',
                                 'class' => 'fa fa-chain',
@@ -535,18 +592,18 @@ class templatesedit
                                 $this->evo->webAlertAndQuit($_lang["error_no_parent"]);
                             }
                         }
-                        $field .= $this->tpl('element', [
+                        $field .= $this->view('element', [
                             'class' => 'form-control ' . $data['class'],
-                            'content' => $this->tpl('element', [
+                            'content' => $this->view('element', [
                                     'tag' => 'i',
                                     'id' => 'plock',
                                     'class' => 'fa fa-folder-o',
                                     'attr' => 'onclick="enableParentSelection(!allowParentSelection);"'
-                                ]) . $this->tpl('element', [
+                                ]) . $this->view('element', [
                                     'tag' => 'b',
                                     'id' => 'parentName',
                                     'content' => $this->doc['parent'] . ' (' . $parentname . ')'
-                                ]) . $this->tpl('input', [
+                                ]) . $this->view('input', [
                                     'type' => 'hidden',
                                     'name' => 'parent',
                                     'value' => $this->doc['parent']
@@ -580,7 +637,7 @@ class templatesedit
                             $options = explode(',', $custom_contenttype);
                             $field .= $this->form('select', [
                                 'name' => 'contentType',
-                                'value' => $this->doc['contentType'] ? $this->doc['contentType'] : 'text/html',
+                                'value' => isset($this->doc['contentType']) ? $this->doc['contentType'] : 'text/html',
                                 'options' => array_combine($options, $options),
                                 'class' => $data['class']
                             ]);
@@ -588,7 +645,7 @@ class templatesedit
                             $field .= $this->form('input', [
                                 'type' => 'hidden',
                                 'name' => 'type',
-                                'value' => $this->doc['type'] == 'reference' ? 'text/html' : ($this->doc['contentType'] ? $this->doc['contentType'] : 'text/html')
+                                'value' => $this->doc['type'] == 'reference' ? 'text/html' : (isset($this->doc['contentType']) ? $this->doc['contentType'] : 'text/html')
                             ]);
                             if ($this->doc['type'] == 'reference') {
                                 $field .= $this->form('input', [
@@ -610,7 +667,7 @@ class templatesedit
                         if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
                             $field .= $this->form('select', [
                                 'name' => 'content_dispo',
-                                'value' => $this->doc['content_dispo'],
+                                'value' => isset($this->doc['content_dispo']) ? $this->doc['content_dispo'] : 0,
                                 'options' => [
                                     0 => $_lang['inline'],
                                     1 => $_lang['attachment']
@@ -630,34 +687,36 @@ class templatesedit
 
                     default:
                         $field .= $this->form('input', [
-                            'name' => $name,
-                            'value' => $this->evo->htmlspecialchars(stripslashes($this->doc[$name])),
+                            'name' => $key,
+                            'value' => $this->evo->htmlspecialchars(stripslashes($this->doc[$key])),
                             'class' => 'form-control ' . $data['class'],
-                            'attr' => 'spellcheck="true"' . $required
+                            'attr' => 'spellcheck="true"' . $data['required'] . $data['pattern']
                         ]);
                         break;
                 }
             }
         } else {
+            $isTv = true;
+            $labelFor = 'tv' . $data['id'];
+            $rowClass .= ' form-row-' . $data['type'];
+
+            if ($data['title'] == '') {
+                $data['title'] = $data['caption'];
+                if (substr($data['value'], 0, 8) == '@INHERIT') {
+                    $data['description'] .= '<div class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</div>';
+                }
+            }
+
             if (array_key_exists('tv' . $data['id'], $_POST)) {
                 if ($data['type'] == 'listbox-multiple') {
-                    $value = implode('||', $_POST['tv' . $data['id']]);
+                    $data['value'] = implode('||', $_POST['tv' . $data['id']]);
                 } else {
-                    $value = $_POST['tv' . $data['id']];
+                    $data['value'] = $_POST['tv' . $data['id']];
                 }
-            } else {
-                $value = $data['value'];
             }
-            if (isset($data['title'])) {
-                $title = '<label for="tv' . $data['id'] . '" class="warning">' . $item_title . '</label>' . $fieldDescription;
-            } else {
-                $item_title = $data['caption'];
-                //$item_title .= '<small class="protectedNode d-block">[*' . $data['name'] . '*]</small>';
-                $item_description = $data['description'];
-                $tvDescription = (!empty($item_description)) ? '<div class="comment">' . $item_description . '</div>' : '';
-                $tvInherited = (substr($value, 0, 8) == '@INHERIT') ? '<div class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</div>' : '';
-                $title = '<div class="warning">' . $item_title . '</div>' . $tvDescription . $tvInherited;
-            }
+
+            $field = renderFormElement($data['type'], $data['id'], $data['default_text'], $data['elements'], $data['value'], '', $data);
+
             if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
                 $tvOptions = $this->evo->parseProperties($data['elements']);
                 $editor = $this->evo->config['which_editor'];
@@ -667,20 +726,75 @@ class templatesedit
                 $this->richtexteditorIds[$editor][] = 'tv' . $data['id'];
                 $this->richtexteditorOptions[$editor]['tv' . $data['id']] = $tvOptions;
             }
-            $renderField = renderFormElement($data['type'], $data['id'], $data['default_text'], $data['elements'], $value, '', $data);
-            // show required
-            if ($required) {
-                $renderField = str_replace(' name="', $required . ' name="', $renderField);
+
+            // add class form-control
+            if ($data['type'] == 'date') {
+                $field = str_replace('class="', 'class="form-control ', $field);
+            } else {
+                $field = str_replace(['name="', 'type="button"'], ['class="form-control" name="', 'class="form-control" type="button"'], $field);
             }
-            $field .= $renderField;
+
+            // show required
+            if ($data['required']) {
+                $field = str_replace(' name="', $data['required'] . ' name="', $field);
+            }
+        }
+
+        if (!empty($field) || (!empty($data['type']) && $data['type'] == 'custom_tv')) {
+            $title = '';
+            $data['size'] = !empty($data['size']) ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size'] : '');
+            $data['position'] = !empty($data['position']) ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
+            $data['reverse'] = !empty($data['reverse']) ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
+
+            if (trim($data['title'])) {
+                $title = '<label for="' . $labelFor . '" class="warning">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
+                if ($data['position'] == 'c') {
+                    $leftClass .= ' col-xs-12 col-12';
+                    $rightClass .= ' col-xs-12 col-12';
+                    if ($data['reverse']) {
+                        $rowClass .= ' column-reverse';
+                    }
+                } elseif ($data['position'] == 'r') {
+                    $leftClass .= ' col';
+                    $rightClass .= ' col-auto';
+                    if ($data['reverse']) {
+                        $rowClass .= ' row-reverse';
+                    }
+                } elseif ($data['position'] == 'a') {
+                    $leftClass .= ' col-12';
+                    $rightClass .= ' col-12';
+                    $rowClass .= ' col-12 col-sm-6 col-md';
+                    if ($data['reverse']) {
+                        $rowClass .= ' column-reverse';
+                    }
+                } else {
+                    $leftClass .= ' col-auto col-title';
+                    $rightClass .= ' col';
+                    if ($data['reverse']) {
+                        $rowClass .= ' row-reverse';
+                    }
+                }
+                $rightClass .= $data['size'];
+            } else {
+                if ($data['position'] == 'a') {
+                    $leftClass .= ' col-12';
+                    $rightClass .= ' col-12';
+                    $rowClass .= ' col-12 col-sm-6 col-md';
+                } else {
+                    $leftClass .= ' col-xs-12 col-12';
+                    $rightClass .= ' col-xs-12 col-12' . $data['size'];
+                }
+            }
+
             // show tv image
             if ($data['type'] == 'image' && $this->params['showTvImage']) {
                 $field .= $this->form('thumb', [
-                    'name' => $data['id'],
-                    'value' => $value ? MODX_SITE_URL . $value : '',
+                    'name' => $isTv ? 'tv' . $data['id'] : $key,
+                    'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '') : ($value ? MODX_SITE_URL . $value : ''),
                     'width' => $this->evo->config['thumbWidth']
                 ]);
             }
+
             // show datalist
             if (($data['type'] == 'text' || $data['type'] == 'number') && $data['elements']) {
                 $options = explode('||', $data['elements']);
@@ -690,79 +804,53 @@ class templatesedit
                     'options' => array_combine($options, $options)
                 ]);
             }
+
             // show choices
-            if (!empty($data['choices'])) {
-                $field .= $this->showChoices($data['id'], $value, $data['choices']);
-            }
-        }
-
-        $out = '';
-        if (!empty($field)) {
-            $content = '';
-
-            if (empty($data['titleClass'])) {
-                if (isset($this->config[$tabName]['titleClass'])) {
-                    $data['titleClass'] = $this->config[$tabName]['titleClass'];
-                } elseif (isset($this->params['default.titleClass'])) {
-                    $data['titleClass'] = $this->params['default.titleClass'];
-                }
-                if (empty($data['titleClass'])) {
-                    $data['titleClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-3 col-lg-2' : '';
-                }
+            if (isset($data['choices']) && $data['choices'] != '') {
+                $field .= $this->showChoices($data['id'], $data['value'], $data['choices']);
             }
 
-            if (empty($data['fieldClass'])) {
-                if (isset($this->config[$tabName]['fieldClass'])) {
-                    $data['fieldClass'] = $this->config[$tabName]['fieldClass'];
-                } elseif (isset($this->params['default.fieldClass'])) {
-                    $data['fieldClass'] = $this->params['default.fieldClass'];
-                }
-                if (empty($data['fieldClass'])) {
-                    $data['fieldClass'] = !empty($data['title']) || !empty($data['caption']) ? 'col-md-9 col-lg-10' : 'col-xs-12 col-12';
-                }
-            }
+            // show select richtext
+            if ($key == 'content') {
+                $options = [
+                    'none' => $_lang['none']
+                ];
 
-            if (!empty($data['title']) || !empty($data['caption'])) {
-                $afterTitle = '';
-                if ($name == 'content') {
-                    $options = [
-                        'none' => $_lang['none']
-                    ];
-                    $evtOut = $this->evo->invokeEvent("OnRichTextEditorRegister");
-                    if (is_array($evtOut)) {
-                        for ($i = 0; $i < count($evtOut); $i++) {
-                            $editor = $evtOut[$i];
-                            $options[$editor] = $editor;
-                        }
+                $evtOut = $this->evo->invokeEvent("OnRichTextEditorRegister");
+                if (is_array($evtOut)) {
+                    for ($i = 0; $i < count($evtOut); $i++) {
+                        $editor = $evtOut[$i];
+                        $options[$editor] = $editor;
                     }
-                    $afterTitle .= $this->tpl('element', [
-                        'class' => empty($data['selectClass']) ? '' : $data['selectClass'],
-                        'content' => $this->tpl('element', [
-                                'content' => $_lang['which_editor_title'],
-                                'class' => 'float-xs-left'
-                            ]) . $this->form('select', [
-                                'name' => 'which_editor',
-                                'value' => $this->evo->config['which_editor'],
-                                'options' => $options,
-                                'class' => 'form-control form-control-sm float-xs-none ml-1',
-                                'onchange' => 'changeRTE();'
-                            ])
-                    ]);
                 }
-                $content .= $this->tpl('element', [
-                    'class' => $data['titleClass'],
-                    'content' => $title . $help . $afterTitle
+
+                $field = $this->view('element', [
+                        'class' => 'select-which-editor',
+                        'content' => $this->form('select', [
+                            'name' => 'which_editor',
+                            'value' => $this->evo->config['which_editor'],
+                            'options' => $options,
+                            'class' => 'form-control form-control-sm',
+                            'onchange' => 'changeRTE();'
+                        ])
+                    ]) . $field;
+            }
+
+            if ($title) {
+                $title = $this->view('element', [
+                    'class' => trim($leftClass),
+                    'content' => $title
                 ]);
             }
 
-            $content .= $this->tpl('element', [
-                'class' => $data['fieldClass'],
+            $field = $this->view('element', [
+                'class' => trim($rightClass),
                 'content' => $field
             ]);
 
-            $out .= $this->tpl('element', [
-                'class' => 'row form-row',
-                'content' => $content
+            $out = $this->view('element', [
+                'class' => 'row form-row' . $rowClass,
+                'content' => $title . $field
             ]);
         }
 
@@ -852,7 +940,24 @@ class templatesedit
             $data['onchange'] = 'documentDirty=true;';
         }
 
-        return $this->tpl($tpl, $data);
+        return $this->view($tpl, $data);
+    }
+
+    protected function view($tpl, $data = [])
+    {
+        $tpl = trim($tpl, '/');
+        $tpl = $this->basePath . 'tpl/' . $tpl . '.tpl.php';
+        if (file_exists($tpl)) {
+            extract($data);
+            ob_start();
+            @require($tpl);
+            $out = ob_get_contents();
+            ob_end_clean();
+        } else {
+            $out = 'Error: Could not load template ' . $tpl . '!<br>';
+        }
+
+        return $out;
     }
 
     protected function showChoices($id, $value = '', $separator = ', ')

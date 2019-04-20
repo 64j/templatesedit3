@@ -1,0 +1,1 @@
+<input type="<?= $data['type'] ?>" id="<?= $data['id'] ?>" class="<?= $data['class'] ?>" name="<?= $data['name'] ?>" maxlength="<?= $data['maxlength'] ?>" value="<?= $data['value'] ?>" onchange="<?= $data['onchange'] ?>" <?= $data['attr'] ?> />

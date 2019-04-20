@@ -12,16 +12,22 @@ if ($e->name == 'OnDocFormTemplateRender') {
 }
 
 if ($e->name == 'OnTempFormRender') {
-    require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
-    $e->addOutput((new templateseditbuilder())->renderTemplate());
+    if (file_exists(MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php')) {
+        require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
+        $e->addOutput((new templateseditbuilder())->renderTemplate());
+    }
 }
 
 if ($e->name == 'OnTempFormSave') {
-    require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
-    $e->addOutput((new templateseditbuilder())->saveTemplate());
+    if (file_exists(MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php')) {
+        require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
+        (new templateseditbuilder())->saveTemplate();
+    }
 }
 
 if ($e->name == 'OnTempFormDelete') {
-    require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
-    $e->addOutput((new templateseditbuilder())->deleteTemplate());
+    if (file_exists(MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php')) {
+        require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
+        (new templateseditbuilder())->deleteTemplate();
+    }
 }
