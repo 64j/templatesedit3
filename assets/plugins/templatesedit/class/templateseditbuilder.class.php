@@ -7,6 +7,7 @@
 class templateseditbuilder
 {
     protected $evo;
+    protected $lang;
     protected $params;
     protected $config;
     protected $basePath = MODX_BASE_PATH . 'assets/plugins/templatesedit/';
@@ -25,6 +26,7 @@ class templateseditbuilder
     {
         $this->evo = evolutionCMS();
 
+        $this->getTranslate();
         $this->setParams();
         $this->getConfig();
         $this->setDefaultParams();
@@ -37,43 +39,16 @@ class templateseditbuilder
 
     public function renderTemplate()
     {
-        $default_tvars = [];
-        foreach ($this->default_tvars as $k => $tvar) {
-            $default_tvars[$k] = [
-                'title' => $tvar['title'],
-                'description' => $tvar['description']
-            ];
-        }
-
         return $this->view('tab', [
             'name' => 'templatesEditBuilder',
             'title' => 'template Builder',
             'tabsObject' => 'tp',
             'content' => $this->view('builder', [
-                'role' => $this->params['templatesedit_builder_role'],
-                'default_config' => $this->params['default_config'],
-                'check_config' => $this->params['check_config'],
-                'config' => empty($this->config) ? '' : json_encode($this->config, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE),
-                'data_fields' => json_encode($this->default_fields, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE),
-                'data_tvars' => json_encode($default_tvars, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE),
-                'data_categories' => json_encode($this->default_categories, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE),
-                'data_types' => json_encode($this->field_types, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE),
-                'select_role' => $this->getSelectRole(),
-                'unused_fields' => $this->getUnusedFields(),
-                'unused_tvars' => $this->getUnusedTvars(),
-                'unused_categories' => $this->getUnusedCategories(),
-                'lang.role' => 'Role',
-                'lang.empty' => 'Empty',
-                'lang.fields' => 'Base fields',
-                'lang.tmplvars' => 'Parameters (TV)',
-                'lang.categories' => 'Categories (TV)',
-                'lang.get_default' => 'Get default config',
-                'lang.set_default_for_all' => 'Set as default config',
-                'lang.confirm_set_default_for_all' => 'Attention !\nThis will overwrite the global template by default and will use for documents with a blank template.',
-                'lang.del_default_for_all' => 'Delete global config',
-                'lang.confirm_del_default_for_all' => 'Attention!\nThis delete global template.',
-                'lang.info_default_template' => 'This config is used as global.',
-                'lang.info_saved_config_for_this_template' => 'There is a saved config for this template.'
+                'config' => $this->json_encode($this->config),
+                'data_fields' => $this->json_encode($this->default_fields),
+                'data_tvars' => $this->json_encode($this->default_tvars),
+                'data_categories' => $this->json_encode($this->default_categories),
+                'data_types' => $this->json_encode($this->field_types)
             ])
         ]);
     }
@@ -138,7 +113,7 @@ class templateseditbuilder
         }
     }
 
-    protected function getSelectRole()
+    public function getSelectRole()
     {
         $users = [];
         $sql = $this->evo->db->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
@@ -402,6 +377,18 @@ class templateseditbuilder
 
     }
 
+    protected function getTranslate()
+    {
+        $manager_language = $this->evo->getConfig('manager_language');
+        if (file_exists($this->basePath . 'lang/' . $manager_language . '.php')) {
+            $this->lang = require_once $this->basePath . 'lang/' . $manager_language . '.php';
+        } else {
+            $this->lang = require_once $this->basePath . 'lang/english.php';
+        }
+
+        return $this->lang;
+    }
+
     protected function form($tpl, $data = [])
     {
         if (!isset($data['name'])) {
@@ -511,6 +498,11 @@ class templateseditbuilder
         }
 
         return $out;
+    }
+
+    protected function json_encode($array)
+    {
+        return is_array($array) ? json_encode($array, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE) : '';
     }
 
     protected function dd($str = '', $exit = false)

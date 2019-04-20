@@ -271,7 +271,7 @@ class templatesedit
                 $out .= $this->form('input', [
                     'type' => 'hidden',
                     'name' => $fieldName,
-                    'value' => isset($this->doc[$fieldName]) ? $this->doc[$fieldName] : ''
+                    'value' => isset($this->doc[$fieldName]) ? $this->evo->htmlspecialchars($this->doc[$fieldName]) : ''
                 ]);
             }
             $out .= '<!-- end hidden fields -->';

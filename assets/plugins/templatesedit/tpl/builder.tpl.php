@@ -1,31 +1,31 @@
 <link rel="stylesheet" href="/assets/plugins/templatesedit/css/builder.css">
 <div class="container container-body builder">
     <div class="row b-header align-items-center">
-        <div class="col-auto"><?= $data['lang.role'] ?></div>
+        <div class="col-auto"><?= $this->lang['role'] ?></div>
         <div class="col-auto">
-            <?= $data['select_role'] ?>
+            <?= $this->getSelectRole() ?>
         </div>
         <div class="col text-right text-success">
             <?php
-            if ($data['role'] == 1) {
-                if (!empty($data['default_config'])) {
-                    echo $data['lang.info_default_template'];
+            if ($this->params['templatesedit_builder_role'] == 1) {
+                if (!empty($this->params['default_config'])) {
+                    echo $this->lang['info_default_template'];
                 } else {
-                    if (!empty($data['check_config'])) {
-                        echo $data['lang.info_saved_config_for_this_template'];
+                    if (!empty($this->params['check_config'])) {
+                        echo $this->lang['info_saved_config_for_this_template'];
                     }
                 }
             } else {
-                if (!empty($data['check_config'])) {
-                    echo $data['lang.info_saved_config_for_this_template'];
+                if (!empty($this->params['check_config'])) {
+                    echo $this->lang['info_saved_config_for_this_template'];
                 }
             }
             ?>
         </div>
         <div class="col-auto">
             <?php
-            if ($data['role'] == 1) {
-                if (!empty($data['default_config'])) {
+            if ($this->params['templatesedit_builder_role'] == 1) {
+                if (!empty($this->params['default_config'])) {
                     ?>
                     <label class="btn btn-secondary btn-sm btn-danger" for="templatesedit_builder_del_default">
                         <input
@@ -33,9 +33,9 @@
                             id="templatesedit_builder_del_default"
                             name="templatesedit_builder_del_default"
                             value="1"
-                            onchange="confirm('<?= $data['lang.confirm_del_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
+                            onchange="confirm('<?= $this->lang['confirm_del_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
                             hidden>
-                        <?= $data['lang.del_default_for_all'] ?>
+                        <?= $this->lang['del_default_for_all'] ?>
                     </label>
                     <?php
                 }
@@ -46,9 +46,9 @@
                         id="templatesedit_builder_set_default"
                         name="templatesedit_builder_set_default"
                         value="1"
-                        onchange="confirm('<?= $data['lang.confirm_set_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
+                        onchange="confirm('<?= $this->lang['confirm_set_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
                         hidden>
-                    <?= $data['lang.set_default_for_all'] ?>
+                    <?= $this->lang['set_default_for_all'] ?>
                 </label>
                 <?php
             } else {
@@ -61,27 +61,27 @@
                         value="1"
                         onchange="(this.checked=!0,document.mutate.submit());"
                         hidden>
-                    <?= $data['lang.get_default'] ?>
+                    <?= $this->lang['get_default'] ?>
                 </label>
                 <?php
             }
             ?>
-            <label class="btn btn-sm b-btn-default b-btn-empty" for="this"><?= $data['lang.empty'] ?></label>
+            <label class="btn btn-sm b-btn-default b-btn-empty" for="this"><?= $this->lang['empty'] ?></label>
         </div>
     </div>
     <div class="row">
         <div class="col-auto b-fields-wrap">
-            <div class="b-items-header sectionHeader"><?= $data['lang.fields'] ?></div>
+            <div class="b-items-header sectionHeader"><?= $this->lang['fields'] ?></div>
             <div class="b-items b-unused-fields sectionBody">
-                <?= $data['unused_fields'] ?>
+                <?= $this->getUnusedFields() ?>
             </div>
-            <div class="b-items-header sectionHeader"><?= $data['lang.tmplvars'] ?></div>
+            <div class="b-items-header sectionHeader"><?= $this->lang['tmplvars'] ?></div>
             <div class="b-items b-unused-tvars sectionBody">
-                <?= $data['unused_tvars'] ?>
+                <?= $this->getUnusedTvars() ?>
             </div>
-            <div class="b-items-header sectionHeader"><?= $data['lang.categories'] ?></div>
+            <div class="b-items-header sectionHeader"><?= $this->lang['categories'] ?></div>
             <div class="b-items b-unused-categories sectionBody">
-                <?= $data['unused_categories'] ?>
+                <?= $this->getUnusedCategories() ?>
             </div>
         </div>
         <div class="col">

@@ -87,6 +87,8 @@
         .col-xl-11 { -ms-flex: 0 0 91.666667%; flex: 0 0 91.666667%; max-width: 91.666667%; }
         .col-xl-12 { -ms-flex: 0 0 100%; flex: 0 0 100%; max-width: 100%; }
     }
+    .input-group { position: relative; display: -ms-flexbox; display: flex; -ms-flex-wrap: wrap; flex-wrap: wrap; -ms-flex-align: stretch; align-items: stretch; width: 100%; }
+    .input-group .input-group-btn { display: flex; -ms-flex: 0 0 auto; flex: 0 0 auto; width: auto; max-width: none }
     .form-row .col-auto { padding-left: 0 }
     .form-row .col-title { width: 15rem }
     .form-row .row-col { display: flex; flex-wrap: wrap; flex-direction: row; align-content: start; padding: 0 }
@@ -105,7 +107,7 @@
     input[type=checkbox], input[type=radio] { padding: .5em }
     .warning + [data-tooltip].fa-question-circle { margin: 0.3rem 0.5rem 0; }
     input[name*="date"] + .input-group-addon, input[name="createdon"] + .input-group-addon, input[name="editedon"] + .input-group-addon, input[name="menuindex"] + .input-group-addon { float: left; width: auto }
-    form#mutate input[name="menuindex"] { width: 100%; width: calc(100% + 1px); max-width: calc(100% + 1px); margin-left: calc(-1px); padding: 0.46153846em .5em; text-align: inherit }
+    form#mutate input[name="menuindex"] { flex-basis: 0; flex-grow: 1;  padding: 0.46153846em .5em; max-width: 100%; text-align: inherit }
     .form-control-lg, .input-group-lg > .form-control, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .btn, input.form-control-lg, .btn-group-lg > .btn, .btn-lg, .input-group-addon.form-control-lg, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .input-group-addon.btn, .input-group-lg > .input-group-btn > select.btn:not([size]):not([multiple]), .input-group-lg > select.form-control:not([size]):not([multiple]), .input-group-lg > select.input-group-addon:not([size]):not([multiple]), select.form-control-lg:not([size]):not([multiple]), .input-group-lg > .form-control + a { height: 2.5625rem }
     #documentPane input[name^=tv]:not([class*=mtv]) + input[type=button].form-control { margin-top: 0 }
     .input-group-lg > textarea.form-control { height: inherit }
