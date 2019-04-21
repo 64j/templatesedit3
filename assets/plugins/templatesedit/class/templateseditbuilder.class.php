@@ -59,8 +59,12 @@ class templateseditbuilder
         $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map('trim', explode(',', $this->params['excludeTvCategory'])) : [];
         $this->params['templatesedit_builder_role'] = isset($_REQUEST['templatesedit_builder_role']) ? (int)$_REQUEST['templatesedit_builder_role'] : 1;
         $this->params['config'] = $this->params['id'] . '__' . $this->params['templatesedit_builder_role'];
-        $this->params['default_config'] = false;
-        $this->params['check_config'] = false;
+        $this->params['action'] = isset($_POST['templatesedit_builder_action']) && $_POST['templatesedit_builder_action'] != '' ? $_POST['templatesedit_builder_action'] : '';
+
+        $this->params['config_is_default'] = false;
+        $this->params['check_this_config'] = false;
+        $this->params['check_base_config'] = false;
+        $this->params['check_default_config'] = false;
     }
 
     protected function setDefaultParams()
@@ -119,9 +123,13 @@ class templateseditbuilder
         $sql = $this->evo->db->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
         if ($this->evo->db->getRecordCount($sql)) {
             while ($row = $this->evo->db->getRow($sql)) {
+                $pf = '&nbsp;&nbsp;&nbsp; ';
+                if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json')) {
+                    $pf = '★ ';
+                }
                 $users[] = [
                     'value' => $row['id'],
-                    'title' => $row['name']
+                    'title' => $pf . $row['name']
                 ];
             }
         }
@@ -311,17 +319,19 @@ class templateseditbuilder
         $this->config = [];
         $json = '';
 
-        if (file_exists($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
-            $json = $this->basePath . 'configs/template__' . $this->params['config'] . '.json';
-            $this->params['check_config'] = true;
-        } elseif (file_exists($this->basePath . 'configs/template__' . $this->params['id'] . '__1.json')) {
-            $json = $this->basePath . 'configs/template__' . $this->params['id'] . '__1.json';
-        } elseif ($file = glob($this->basePath . 'configs/template_*_default.json')) {
-            $json = $file[0];
+        if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
+            $json = $this->params['check_default_config'] = $file[0];
+            if ($this->params['check_default_config'] == $this->basePath . 'configs/template_' . $this->params['id'] . '_default.json') {
+                $this->params['config_is_default'] = $this->params['check_default_config'];
+            }
         }
 
-        if (file_exists($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
-            $this->params['default_config'] = true;
+        if (file_exists($this->basePath . 'configs/template__' . $this->params['id'] . '__1.json')) {
+            $json = $this->params['check_base_config'] = $this->basePath . 'configs/template__' . $this->params['id'] . '__1.json';
+        }
+
+        if (file_exists($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
+            $json = $this->params['check_this_config'] = $this->basePath . 'configs/template__' . $this->params['config'] . '.json';
         }
 
         if ($json) {
@@ -339,7 +349,7 @@ class templateseditbuilder
 
     public function saveTemplate()
     {
-        $data = !empty($_REQUEST['templatesedit_builder_data']) ? $this->evo->removeSanitizeSeed($_REQUEST['templatesedit_builder_data']) : '';
+        $data = !empty($_POST['templatesedit_builder_data']) ? $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_data']) : '';
 
         if (!empty($data)) {
             file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
@@ -349,20 +359,26 @@ class templateseditbuilder
             }
         }
 
-        if (!empty($_POST['templatesedit_builder_set_default'])) {
-            if (!empty($data)) {
-                file_put_contents($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json', $data);
-            }
-            $_POST['stay'] = 2;
-        } elseif (!empty($_POST['templatesedit_builder_del_default'])) {
-            if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
-                unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
-            }
-            $_POST['stay'] = 2;
-        } elseif (!empty($_POST['templatesedit_builder_get_default'])) {
-            if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
-                unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
-            }
+        switch ($this->params['action']) {
+            case 'set_default':
+                if (!empty($data)) {
+                    file_put_contents($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json', $data);
+                }
+                break;
+
+            case 'del_default':
+                if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
+                    unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
+                }
+                break;
+
+            case 'set_base':
+                file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', file_get_contents($this->params['check_base_config']));
+                break;
+
+        }
+
+        if (!empty($this->params['action'])) {
             $_POST['stay'] = 2;
         }
 

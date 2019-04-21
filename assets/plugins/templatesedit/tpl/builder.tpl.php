@@ -1,72 +1,55 @@
 <link rel="stylesheet" href="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/css/builder.css">
+<input type="hidden" name="templatesedit_builder_action">
 <div class="container container-body builder">
     <div class="row b-header align-items-center">
         <div class="col-auto"><?= $this->lang['role'] ?></div>
         <div class="col-auto">
             <?= $this->getSelectRole() ?>
         </div>
-        <div class="col text-right text-success">
+        <div class="col text-right">
             <?php
-            if ($this->params['templatesedit_builder_role'] == 1) {
-                if (!empty($this->params['default_config'])) {
-                    echo $this->lang['info_default_template'];
-                } else {
-                    if (!empty($this->params['check_config'])) {
-                        echo $this->lang['info_saved_config_for_this_template'];
-                    }
-                }
+            if (!empty($this->params['check_this_config'])) {
+                ?>
+                <small class="text-success"><?= $this->lang['info.there_is_config'] ?></small>
+                <?php
             } else {
-                if (!empty($this->params['check_config'])) {
-                    echo $this->lang['info_saved_config_for_this_template'];
+                if (!empty($this->params['check_base_config'])) {
+                    ?>
+                    <small class="text-muted"><?= $this->lang['info.used_config_role_admin'] ?></small>
+                    <?php
+                } elseif (!empty($this->params['check_default_config'])) {
+                    ?>
+                    <small class="text-muted"><?= $this->lang['info.used_default_config'] ?></small>
+                    <?php
                 }
             }
             ?>
         </div>
         <div class="col-auto">
             <?php
-            if ($this->params['templatesedit_builder_role'] == 1) {
-                if (!empty($this->params['default_config'])) {
+            if (!empty($this->params['check_this_config'])) {
+                ?>
+                <span class="btn btn-sm btn-danger" onclick="confirm('<?= $this->lang['confirm.del'] ?>')&&(document.mutate.templatesedit_builder_data.value='',document.mutate.submit())"><?= $this->lang['action.del'] ?></span>
+                <?php
+                if ($this->params['templatesedit_builder_role'] == 1) {
+                    if ($this->params['config_is_default']) {
+                        ?>
+                        <span class="btn btn-sm btn-danger" onclick="confirm('<?= $this->lang['confirm.del_default'] ?>')&&(document.mutate.templatesedit_builder_action.value='del_default',document.mutate.submit())"><?= $this->lang['action.del_default'] ?></span>
+                        <?php
+                    }
                     ?>
-                    <label class="btn btn-secondary btn-sm btn-danger" for="templatesedit_builder_del_default">
-                        <input
-                            type="checkbox"
-                            id="templatesedit_builder_del_default"
-                            name="templatesedit_builder_del_default"
-                            value="1"
-                            onchange="confirm('<?= $this->lang['confirm_del_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
-                            hidden>
-                        <?= $this->lang['del_default_for_all'] ?>
-                    </label>
+                    <span class="btn btn-sm btn-secondary" onclick="confirm('<?= $this->lang['confirm.set_default'] ?>')&&(document.mutate.templatesedit_builder_action.value='set_default',document.mutate.submit())"><?= $this->lang['action.set_default'] ?></span>
                     <?php
                 }
-                ?>
-                <label class="btn btn-secondary btn-sm b-btn-default" for="templatesedit_builder_set_default">
-                    <input
-                        type="checkbox"
-                        id="templatesedit_builder_set_default"
-                        name="templatesedit_builder_set_default"
-                        value="1"
-                        onchange="confirm('<?= $this->lang['confirm_set_default_for_all'] ?>')?(this.checked=!0,document.mutate.submit()):this.checked=!1;"
-                        hidden>
-                    <?= $this->lang['set_default_for_all'] ?>
-                </label>
-                <?php
             } else {
-                ?>
-                <label class="btn btn-primary btn-sm b-btn-reset" for="templatesedit_builder_get_default">
-                    <input
-                        type="checkbox"
-                        id="templatesedit_builder_get_default"
-                        name="templatesedit_builder_get_default"
-                        value="1"
-                        onchange="(this.checked=!0,document.mutate.submit());"
-                        hidden>
-                    <?= $this->lang['get_default'] ?>
-                </label>
-                <?php
+                if (!empty($this->params['check_base_config'])) {
+                    ?>
+                    <span class="btn btn-sm btn-primary" onclick="(document.mutate.templatesedit_builder_action.value='set_base',document.mutate.submit())"><?= $this->lang['action.set'] ?></span>
+                    <?php
+                }
             }
             ?>
-            <label class="btn btn-sm b-btn-default b-btn-empty" for="this"><?= $this->lang['empty'] ?></label>
+            <span class="btn btn-sm b-btn-default b-btn-empty"><?= $this->lang['action.empty'] ?></span>
         </div>
     </div>
     <div class="row">

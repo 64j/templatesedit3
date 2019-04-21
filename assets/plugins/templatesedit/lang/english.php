@@ -2,15 +2,23 @@
 
 return [
     'role' => 'Role',
-    'empty' => 'Empty',
     'fields' => 'Base fields',
     'tmplvars' => 'Parameters (TV)',
-    'categories' => 'Categories (TV)',
-    'get_default' => 'Get default config',
-    'set_default_for_all' => 'Set as default config',
-    'confirm_set_default_for_all' => 'Attention !\nThis will overwrite the global template by default and will use for documents with a blank template.',
-    'del_default_for_all' => 'Delete global config',
-    'confirm_del_default_for_all' => 'Attention!\nThis delete global template.',
-    'info_default_template' => 'This config is used as global.',
-    'info_saved_config_for_this_template' => 'There is a saved config for this template.'
+    'categories' => 'Categories',
+    // action
+    'action.empty' => 'Empty',
+    'action.del' => 'Delete',
+    'action.get' => 'Get default config',
+    'action.set' => 'Set',
+    'action.set_default' => 'Default for all',
+    'action.del_default' => 'Delete default config',
+    // confirm
+    'confirm.del' => 'Attention! \nAre you sure you want to delete the configuration?',
+    'confirm.del_default' => 'Attention! \nThis delete global template.',
+    'confirm.set_default' => 'Attention! \nThis will overwrite the global template by default and will use for documents with a blank template.',
+    // info
+    'info.used_default_config' => 'Config is used by default',
+    'info.used_config_role_admin' => 'Use admin role configuration',
+    'info.default_template' => 'This config is used as global.',
+    'info.there_is_config' => 'There is a saved config for this template.'
 ];
