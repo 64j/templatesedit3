@@ -213,10 +213,9 @@ class templatesedit
         }
 
         if (!empty($this->categories) && !empty($this->params['default.tab'])) {
-            //            $this->config[$this->params['default.tab']]['col:0:12'] = [
-            //                'fields:0' => []
-            //            ];
-            $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] = [];
+            if (!isset($this->config[$this->params['default.tab']]['col:0:12']['fields:0'])) {
+                $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] = [];
+            }
             foreach ($this->categories as $k => $fields) {
                 if (!in_array($k, $this->params['excludeTvCategory'])) {
                     $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] += $fields;
@@ -742,7 +741,7 @@ class templatesedit
             }
         }
 
-        if (!empty($field) || (!empty($data['type']) && stripos($data['type'], 'custom_tv') !== false)) {
+        if ($field) {
             $title = '';
             $data['size'] = !empty($data['size']) ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size'] : '');
             $data['position'] = !empty($data['position']) ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
