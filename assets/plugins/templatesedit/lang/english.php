@@ -14,7 +14,7 @@ return [
     'action.del_default' => 'Delete default config',
     // confirm
     'confirm.del' => 'Attention! \nAre you sure you want to delete the configuration?',
-    'confirm.del_default' => 'Attention! \nThis delete global template.',
+    'confirm.del_default' => 'Attention! \nThis will delete the global template.',
     'confirm.set_default' => 'Attention! \nThis will overwrite the global template by default and will use for documents with a blank template.',
     // info
     'info.used_default_config' => 'Config is used by default',
