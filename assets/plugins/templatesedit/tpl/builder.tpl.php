@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/plugins/templatesedit/css/builder.css">
+<link rel="stylesheet" href="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/css/builder.css">
 <div class="container container-body builder">
     <div class="row b-header align-items-center">
         <div class="col-auto"><?= $this->lang['role'] ?></div>
@@ -90,8 +90,8 @@
     </div>
 </div>
 <textarea name="templatesedit_builder_data" id="templatesedit_builder_data" rows="15" style="display: none"><?= $data['config'] ?></textarea>
-<script src="/assets/plugins/templatesedit/js/Sortable.min.js"></script>
-<script src="/assets/plugins/templatesedit/js/TemplatesEditBuilder.js"></script>
+<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/Sortable.min.js"></script>
+<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/TemplatesEditBuilder.js"></script>
 <script>
   new TemplatesEditBuilder(document.getElementById('builder'), {
     dataEl: document.getElementById('templatesedit_builder_data'),
