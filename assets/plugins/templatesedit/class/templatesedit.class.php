@@ -213,9 +213,9 @@ class templatesedit
         }
 
         if (!empty($this->categories) && !empty($this->params['default.tab'])) {
-//            $this->config[$this->params['default.tab']]['col:0:12'] = [
-//                'fields:0' => []
-//            ];
+            //            $this->config[$this->params['default.tab']]['col:0:12'] = [
+            //                'fields:0' => []
+            //            ];
             $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] = [];
             foreach ($this->categories as $k => $fields) {
                 if (!in_array($k, $this->params['excludeTvCategory'])) {
@@ -727,20 +727,22 @@ class templatesedit
                 $this->richtexteditorOptions[$editor]['tv' . $data['id']] = $tvOptions;
             }
 
-            // add class form-control
-            if ($data['type'] == 'date') {
-                $field = str_replace('class="', 'class="form-control ', $field);
-            } else {
-                $field = str_replace(['name="', 'type="button"'], ['class="form-control" name="', 'class="form-control" type="button"'], $field);
-            }
+            if (stripos($data['type'], 'custom_tv') === false) {
+                // add class form-control
+                if ($data['type'] == 'date') {
+                    $field = str_replace('class="', 'class="form-control ', $field);
+                } else {
+                    $field = str_replace(['name="', 'type="button"'], ['class="form-control" name="', 'class="form-control" type="button"'], $field);
+                }
 
-            // show required
-            if ($data['required']) {
-                $field = str_replace(' name="', $data['required'] . ' name="', $field);
+                // show required
+                if ($data['required']) {
+                    $field = str_replace(' name="', $data['required'] . ' name="', $field);
+                }
             }
         }
 
-        if (!empty($field) || (!empty($data['type']) && $data['type'] == 'custom_tv')) {
+        if (!empty($field) || (!empty($data['type']) && stripos($data['type'], 'custom_tv') !== false)) {
             $title = '';
             $data['size'] = !empty($data['size']) ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size'] : '');
             $data['position'] = !empty($data['position']) ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
