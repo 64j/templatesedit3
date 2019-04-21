@@ -2,6 +2,8 @@
 global $_lang;
 
 /*
+ * To use custom_fields rename this file in custom_fields.php
+ *
  * @title - Title field
  * @help - Help for field
  * @default - default value in table site_content.
