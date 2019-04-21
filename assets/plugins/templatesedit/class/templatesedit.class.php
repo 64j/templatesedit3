@@ -129,7 +129,9 @@ class templatesedit
 
         $this->default_fields = require_once $this->basePath . 'configs/fields.php';
 
-        return $this->default_fields;
+        if (file_exists($this->basePath . 'configs/custom_fields.php')) {
+            $this->default_fields += require_once $this->basePath . 'configs/custom_fields.php';
+        }
     }
 
     protected function getTemplateId()
@@ -460,7 +462,6 @@ class templatesedit
                     case 'alias_visible':
                     case 'isfolder':
                     case 'hidemenu':
-                    case 'deleted':
                         $rowClass .= ' form-row-checkbox';
                         $labelFor .= 'check';
                         $value = empty($this->doc[$key]) ? 0 : 1;
@@ -1006,8 +1007,23 @@ class templatesedit
         if (!empty($id)) {
             $data = [];
 
-            if (isset($_REQUEST['deleted'])) {
-                $data['deleted'] = (int)$_REQUEST['deleted'];
+            if (file_exists($this->basePath . 'configs/custom_fields.php')) {
+                $custom_fields = require_once $this->basePath . 'configs/custom_fields.php';
+                if (is_array($custom_fields)) {
+                    foreach ($custom_fields as $k => $v) {
+                        if (!empty($v['save'])) {
+                            if (isset($_REQUEST[$k])) {
+                                $v = $_REQUEST[$k];
+                                if (is_array($v)) {
+                                    $v = implode('||', $v);
+                                }
+                                $data[$k] = $this->evo->db->escape($v);
+                            } else {
+                                $data[$k] = isset($v['default']) ? $v['default'] : '';
+                            }
+                        }
+                    }
+                }
             }
 
             if (!empty($data)) {

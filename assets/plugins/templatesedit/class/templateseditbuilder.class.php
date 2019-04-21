@@ -226,6 +226,10 @@ class templateseditbuilder
     {
         $this->default_fields = require_once $this->basePath . 'configs/fields.php';
 
+        if (file_exists($this->basePath . 'configs/custom_fields.php')) {
+            $this->default_fields += require_once $this->basePath . 'configs/custom_fields.php';
+        }
+
         return $this->default_fields;
     }
 
