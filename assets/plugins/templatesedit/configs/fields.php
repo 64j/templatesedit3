@@ -114,4 +114,7 @@ return [
         'title' => $_lang['resource_opt_emptycache'],
         'help' => $_lang['resource_opt_emptycache_help']
     ],
+    'deleted' => [
+        'title' => $_lang["delete_resource"]
+    ],
 ];

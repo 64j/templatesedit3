@@ -8,7 +8,7 @@
  * @version     3.1.x
  * @package     evo
  * @internal    @properties &showTvImage=Показывать картинки в TV;list;yes,no;yes &excludeTvCategory=Исключить TV из категорий;text &defaultTemplateType=Конфигурация шаблона по умолчанию;list;1,2;1
- * @internal    @events OnDocFormTemplateRender,OnTempFormRender,OnTempFormSave,OnTempFormDelete
+ * @internal    @events OnDocFormTemplateRender,OnDocFormSave,OnTempFormRender,OnTempFormSave,OnTempFormDelete
  * @internal    @modx_category Manager and Admin
  * @internal    @installset base,sample
  * @author      64j

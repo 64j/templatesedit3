@@ -460,6 +460,7 @@ class templatesedit
                     case 'alias_visible':
                     case 'isfolder':
                     case 'hidemenu':
+                    case 'deleted':
                         $rowClass .= ' form-row-checkbox';
                         $labelFor .= 'check';
                         $value = empty($this->doc[$key]) ? 0 : 1;
@@ -998,6 +999,21 @@ class templatesedit
         }
 
         return $out;
+    }
+
+    public function OnDocFormSave($id, $mode)
+    {
+        if (!empty($id)) {
+            $data = [];
+
+            if (isset($_REQUEST['deleted'])) {
+                $data['deleted'] = (int)$_REQUEST['deleted'];
+            }
+
+            if (!empty($data)) {
+                $this->evo->db->update($data, '[+prefix+]site_content', 'id=' . $id);
+            }
+        }
     }
 
     protected function dd($str = '', $exit = false)

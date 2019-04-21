@@ -11,6 +11,12 @@ if ($e->name == 'OnDocFormTemplateRender') {
     $e->addOutput((new templatesedit())->renderTemplate($content));
 }
 
+if ($e->name == 'OnDocFormSave') {
+    global $content;
+    require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templatesedit.class.php';
+    (new templatesedit())->OnDocFormSave($id, $mode);
+}
+
 if ($e->name == 'OnTempFormRender') {
     if (file_exists(MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php')) {
         require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
