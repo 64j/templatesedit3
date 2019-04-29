@@ -5,7 +5,7 @@
     form#mutate input[name="menuindex"] { width: 100%; width: calc(100% + 1px); max-width: calc(100% + 1px); margin-left: calc(-1px); padding: 0.46153846em .5em; text-align: inherit }
     .input-group-date.d-block { display: table !important; width: 100% !important;  }
     .input-group-date.d-block > input { float: none !important; width: inherit !important; }
-    .image_for_tv[data-image] { display: block; content: ""; width: 120px; height: 120px; margin: .1rem .1rem 0 0; border: 1px #ccc solid; background: #fff 50% 50%; background-size: contain; cursor: pointer }
+    .image_for_tv[data-image] { display: block; content: ""; width: 120px; height: 120px; margin: .1rem .1rem 0 0; border: 1px #ccc solid; background: #fff 50% 50%; background-size: contain; background-repeat: no-repeat; cursor: pointer }
     .image_for_tv[data-image=""] { display: none }
     .choicesList { padding: .25rem 0 }
     .choicesList::after { content: ""; display: table; width: 100% }
