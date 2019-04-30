@@ -246,26 +246,20 @@ class templateseditbuilder
             ORDER BY tt.rank DESC, tv.rank DESC, tv.caption DESC, tv.id DESC
             ');
 
-            $default_categories = [];
+            $this->default_categories = [];
             if ($this->evo->db->getRecordCount($sql)) {
                 while ($row = $this->evo->db->getRow($sql)) {
                     $this->default_tvars[$row['name']] = $row;
-                    $default_categories[$row['category']] = $row['category'];
+                    $this->default_categories[$row['category']] = $row['category'];
                 }
             }
 
-            $this->default_categories = $default_categories;
-
-            if (isset($default_categories[0])) {
-                $this->default_categories[0] = [
-                    'id' => 0,
-                    'category' => $_lang['no_category'],
-                    'title' => $_lang['no_category'],
-                    'rank' => 0
-                ];
-            } else {
-                unset($this->default_categories[0]);
-            }
+            $this->default_categories[0] = [
+                'id' => 0,
+                'category' => $_lang['no_category'],
+                'title' => $_lang['no_category'],
+                'rank' => 0
+            ];
         }
     }
 
@@ -275,7 +269,6 @@ class templateseditbuilder
             $sql = $this->evo->db->query('
             SELECT *, category AS title
             FROM ' . $this->evo->getFullTableName('categories') . '
-            WHERE id IN(' . implode(',', array_keys($this->default_categories)) . ')
             ORDER BY rank, category
             ');
 

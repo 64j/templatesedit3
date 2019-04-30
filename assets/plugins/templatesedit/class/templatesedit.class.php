@@ -191,36 +191,52 @@ class templatesedit
             }
         }
 
+        $categories = $this->categories;
+
         foreach ($this->config as $tabId => &$tab) {
             if (!empty($tab['default'])) {
                 $this->params['default.tab'] = $tabId;
             }
+
             if (isset($tab['fields'])) {
                 $tab['col:0:12']['fields'] = $tab['fields'];
                 unset($tab['fields']);
             }
+
             foreach ($tab as $colId => $col) {
                 if (is_array($col)) {
                     foreach ($col as $fieldsId => $fields) {
                         if (substr($fieldsId, 0, 7) == 'fields:') {
                             foreach ($fields as $key => $field) {
                                 if (isset($this->tvars[$key])) {
+                                    unset($categories[$this->tvars[$key]['category']][$key]);
                                     unset($this->categories[$this->tvars[$key]['category']][$key]);
                                 }
                             }
                         }
+                        if (substr($fieldsId, 0, 9) == 'category:') {
+                            list($category, $categoryId) = explode(':', $fieldsId);
+                            unset($categories[$categoryId]);
+                            if (empty($this->categories[$categoryId])) {
+                                unset($this->config[$tabId][$colId][$fieldsId]);
+                            }
+                        }
+                    }
+                    if (empty($this->config[$tabId][$colId])) {
+                        unset($this->config[$tabId]);
                     }
                 }
             }
         }
 
-        if (!empty($this->categories) && !empty($this->params['default.tab'])) {
+        if (!empty($categories) && !empty($this->params['default.tab'])) {
             if (!isset($this->config[$this->params['default.tab']]['col:0:12']['fields:0'])) {
                 $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] = [];
             }
-            foreach ($this->categories as $k => $fields) {
+            foreach ($categories as $k => $fields) {
                 if (!in_array($k, $this->params['excludeTvCategory'])) {
                     $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] += $fields;
+                    unset($this->config[$this->params['default.tab']]['col:0:12']['category:' . $k]);
                 }
             }
         }
