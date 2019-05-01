@@ -269,7 +269,7 @@ class templateseditbuilder
             $sql = $this->evo->db->query('
             SELECT *, category AS title
             FROM ' . $this->evo->getFullTableName('categories') . '
-            ORDER BY rank, category
+            ORDER BY category
             ');
 
             if ($this->evo->db->getRecordCount($sql)) {

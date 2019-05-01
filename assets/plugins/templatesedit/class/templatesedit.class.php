@@ -179,7 +179,7 @@ class templatesedit
         }
 
         $sql = $this->evo->db->select('
-        DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
+        DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
         INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
         LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid="' . $this->doc['id'] . '"
         LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid="' . $this->doc['template'] . '" AND (1="' . $_SESSION['mgrRole'] . '" OR ISNULL(tva.documentgroup)' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
