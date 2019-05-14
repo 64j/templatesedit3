@@ -110,4 +110,8 @@ return [
         'title' => $_lang['resource_opt_alvisibled'],
         'help' => $_lang['resource_opt_alvisibled_help']
     ],
+    'syncsite' => [
+        'title' => $_lang['resource_opt_emptycache'],
+        'help' => $_lang['resource_opt_emptycache_help']
+    ]
 ];

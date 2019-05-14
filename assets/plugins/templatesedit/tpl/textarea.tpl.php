@@ -1,0 +1,1 @@
+<textarea id="<?= $data['id'] ?>" class="<?= $data['class'] ?>" name="<?= $data['name'] ?>" rows="<?= $data['rows'] ?>" wrap="soft" onchange="documentDirty=true;"><?= $data['value'] ?></textarea>

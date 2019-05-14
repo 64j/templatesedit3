@@ -1,0 +1,87 @@
+.builder .row { display: flex; flex-wrap: wrap; margin-left: -.25rem; margin-right: -.25rem; cursor: default }
+.builder .row::after { display: none }
+.builder .row.col { align-content: flex-start; margin: 0 0 .25rem; padding: 0 .25rem 0 0 }
+.builder .col-1, .builder .col-2, .builder .col-3, .builder .col-4, .builder .col-5, .builder .col-6, .builder .col-7, .builder .col-8, .builder .col-9, .builder .col-10, .builder .col-11, .builder .col-12, .builder .col, .builder .col-auto { position: relative; width: 100%; min-height: 0; padding-left: .25rem; padding-right: .25rem }
+.builder .col { flex-basis: 0; flex-grow: 1; max-width: 100% }
+.builder .col-auto { -ms-flex: 0 0 auto; flex: 0 0 auto; width: auto; max-width: none }
+.builder .col-0 { max-width: 5px }
+.builder .col-1 { -ms-flex: 0 0 8.333333%; flex: 0 0 8.333333%; max-width: 8.333333% }
+.builder .col-2 { -ms-flex: 0 0 16.666667%; flex: 0 0 16.666667%; max-width: 16.666667% }
+.builder .col-3 { -ms-flex: 0 0 25%; flex: 0 0 25%; max-width: 25% }
+.builder .col-4 { -ms-flex: 0 0 33.333333%; flex: 0 0 33.333333%; max-width: 33.333333% }
+.builder .col-5 { -ms-flex: 0 0 41.666667%; flex: 0 0 41.666667%; max-width: 41.666667% }
+.builder .col-6 { -ms-flex: 0 0 50%; flex: 0 0 50%; max-width: 50% }
+.builder .col-7 { -ms-flex: 0 0 58.333333%; flex: 0 0 58.333333%; max-width: 58.333333% }
+.builder .col-8 { -ms-flex: 0 0 66.666667%; flex: 0 0 66.666667%; max-width: 66.666667% }
+.builder .col-9 { -ms-flex: 0 0 75%; flex: 0 0 75%; max-width: 75% }
+.builder .col-10 { -ms-flex: 0 0 83.333333%; flex: 0 0 83.333333%; max-width: 83.333333% }
+.builder .col-11 { -ms-flex: 0 0 91.666667%; flex: 0 0 91.666667%; max-width: 91.666667% }
+.builder .col-12 { -ms-flex: 0 0 100%; flex: 0 0 100%; max-width: 100% }
+.builder .align-items-center { align-items: center }
+.builder label { margin: 0; user-select: none }
+.builder input[type="text"] { cursor: auto }
+.builder .row-col { position: relative; padding: .25rem .25rem 0 .25rem !important; margin-right: -1px !important; min-height: 2.4rem; height: 100%; border: 1px solid }
+.builder .b-resize { position: absolute; top: 0; right: -1px; bottom: 0; width: .35rem; cursor: col-resize; transition: background-color .25s }
+.builder .fa { font-size: .75rem }
+.builder .b-btn-wrap { position: absolute; right: .25rem; bottom: 100%; padding: 0 .25rem; margin-bottom: -1px; opacity: 0; visibility: hidden; border: 1px solid; border-bottom-color: transparent !important; transition: opacity .5s, visibility .5s }
+.builder .b-btn-wrap-center { right: 50%; margin-right: -1rem }
+.builder .b-btn-wrap i { margin: 0 1px }
+.builder .row-col-wrap:hover .b-btn-wrap { opacity: 1; visibility: visible }
+.builder .b-header { margin-bottom: .5rem }
+.builder .b-content { }
+.builder .b-hidden { display: none }
+.builder .b-settings { position: absolute; overflow: hidden; z-index: 6; opacity: 0; visibility: hidden; left: .5rem; top: 0; padding: 0 !important; width: 18rem !important; max-width: 18rem !important; cursor: auto; transform: translateY(.5rem); transition: opacity .25s, visibility .25s, transform .25s }
+.builder .row-col-wrap > .b-settings, .builder .b-field > .b-settings { left: auto; right: 3rem }
+.builder .b-open > .b-settings { transform: translateX(0); opacity: 1; visibility: visible }
+.builder .b-settings .row { align-items: center; padding: .4rem 1rem; border-bottom: 1px solid }
+.builder .b-settings .b-settings-header { padding: 0; margin: 0 }
+.builder .b-settings .b-settings-header > div { padding: 0 1rem }
+.builder .b-settings .b-settings-header label { padding: 0 .5rem; height: 1.5rem; font-size: 2rem; line-height: .45rem; text-align: center; font-family: serif }
+.builder .b-settings .b-settings-header .b-btn-close { line-height: 1.45rem }
+.builder .b-settings .b-settings-body { font-size: 0; white-space: nowrap }
+.builder .b-settings .b-input-more:checked ~ .b-settings-body .b-settings-content { transform: translateX(-100%); }
+.builder .b-settings .b-settings-content { overflow: hidden; display: inline-block; width: 18rem; font-size: .75rem; vertical-align: top; transition: transform .5s }
+.builder .b-settings .b-settings-content .row:last-child { margin-bottom: .5rem; border: none }
+.builder .b-settings .b-btn-group { display: flex; flex-wrap: wrap; flex-direction: row }
+.builder .b-settings .b-btn-group label { flex-basis: 0; flex-grow: 1; max-width: 100%; display: block; border-left: 1px solid; }
+.builder .b-settings .b-btn-group label:first-child { border: none }
+.builder .b-settings input[type="radio"] + i, .builder .b-settings input[type="checkbox"] + i { display: block; width: 100%; padding: .1rem .25rem; font-style: normal; font-size: 0.875rem; line-height: 1.3rem; text-align: center; cursor: pointer }
+.builder .b-settings [data-name="position"][value="r"] + i { transform: rotate(180deg) }
+.builder .b-tab { display: flex; flex-wrap: wrap; flex-direction: row; position: relative; top: 1px; padding: .5rem .5rem .25rem .5rem; margin: 2.5rem 0 3rem; min-height: 3.5rem; border: 1px solid }
+.builder .b-tab-title { position: absolute; left: 0; bottom: 100%; border-bottom: none }
+.builder .b-tab-title-input { position: relative; width: 10.5rem }
+.builder .b-tab-check-default { position: absolute; z-index: 5; right: .5rem; top: .4rem; margin: 0; color: #bdbdbd }
+.builder .b-tab-default:checked ~ .b-tab-title .b-tab-check-default { color: #5cb85c }
+.builder .b-fields-wrap { padding-bottom: 1.5rem }
+.builder .b-items-header { }
+.builder .b-items { overflow: auto; overflow-x: hidden; padding: 0 !important; margin: 0 -1px 1rem; width: 15rem; max-height: 15rem }
+.builder .b-items .b-field, .builder .b-items .b-category { overflow: hidden; padding: .25rem .5rem; margin: -1px 0 0; border: none; border-top: 1px solid; white-space: nowrap; text-overflow: ellipsis }
+.builder .b-items .b-field .b-btn-settings, .builder .b-items .b-field .b-btn-del, .builder .b-items .b-field .b-field-title, .builder .b-items .b-category .b-btn-del { display: none }
+.builder .b-field { position: relative; padding: .25rem .5rem; margin-bottom: .25rem; height: 1.8rem; border: 1px solid }
+.builder .b-field.b-required-checked { border-color: #d9534f !important }
+.builder .b-field .b-btn-settings, .builder .b-field .b-btn-del { opacity: .5; transition: .5s opacity }
+.builder .b-field:hover .b-btn-settings, .builder .b-field:hover .b-btn-del { opacity: 1 }
+.builder .b-field:hover, .builder .b-category:hover { background-color: rgba(0, 0, 0, 0.04) }
+.builder .b-field-hidden::after { position: absolute; content: ""; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(239, 239, 239, 0.65) }
+.builder .b-field-hidden * { -webkit-user-select: none !important; user-select: none !important; }
+.builder .b-category { padding: .15rem .5rem 0; margin-bottom: .25rem; height: 1.8rem; border: 2px dashed #4caf50 }
+.builder .b-category .b-field-name { width: 11.15rem }
+.builder .b-items .b-category-title { margin-bottom: 0 }
+.builder .b-category .row-col { display: none }
+/* theme colors */
+.builder .b-settings input[type="radio"] + i, .builder .b-settings input[type="checkbox"] + i, .builder .b-settings .b-btn-more { background-color: #e0e0e0 }
+.builder .b-settings input[type="radio"]:checked + i, .builder .b-settings input[type="checkbox"]:checked + i { background-color: #1976d2; color: #fff }
+.builder .b-btn-wrap { background-color: #f3f3f3 }
+.builder .b-resize { background-color: #e0e0e0 }
+.builder .b-items .b-field, .builder .b-items .b-category, .builder .b-tab, .builder .b-field, .builder .row-col, .builder .b-resize, .builder .b-settings .row { border-color: #e0e0e0 }
+.builder .row-col-wrap:hover .row-col, .builder .row-col-wrap:hover .b-resize, .builder .b-btn-wrap, .builder .b-resize, .builder .b-settings .col-12:first-child { border-color: #ccc }
+.builder .row-col-wrap:hover .b-resize, .builder .b-settings .b-btn-group label { border-color: #ccc }
+.builder .b-item.active, .builder .b-item.active .b-tab-title, .builder .row-col-wrap.active { background-color: #fff4dc; color: #222 }
+.darkness .builder .b-items .b-field, .darkness .builder .b-items .b-category, .darkness .builder .b-tab, .darkness .builder .b-field, .darkness .builder .row-col, .darkness .builder .b-resize, .darkness .builder .b-settings .row, .darkness .builder .b-settings .b-btn-group label { border-color: #414449 }
+.darkness .builder .b-resize { background-color: #414449 }
+.darkness .builder .row-col-wrap:hover .b-resize { background-color: #65686d }
+.darkness .builder .row-col-wrap:hover .row-col, .darkness .builder .row-col-wrap:hover .b-resize, .darkness .builder .b-btn-wrap, .darkness .builder .b-settings > .row:first-child { border-color: #65686d }
+.darkness .builder .b-btn-wrap, .darkness .builder .b-settings input[type="radio"] + i, .darkness .builder .b-settings input[type="checkbox"] + i, .darkness .builder .b-settings .b-btn-more { background-color: #282c34 }
+.darkness .builder .b-settings input[type="radio"]:checked + i, .darkness .builder .b-settings input[type="checkbox"]:checked + i, .builder .b-settings .b-input-more:checked + .row .b-btn-more { background-color: #1976d2; color: #fff }
+.builder .row-col-wrap:hover .b-resize:hover, .builder .b-resize:hover, .builder .b-resize:active { background-color: #1976d2 }
+.darkness .builder .b-item.active, .darkness .builder .b-item.active .b-tab-title, .darkness .builder .row-col-wrap.active { background-color: #ffc107; color: #222 }

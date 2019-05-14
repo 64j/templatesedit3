@@ -1,1 +1,0 @@
-<[+tag+] id="[+id+]" class="[+class+]" [+attr+]>[+content+]</[+tag+]>
