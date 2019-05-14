@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * @author 64j <64j@mail.ru>
+ * @author 64j
  */
 
 class templateseditbuilder

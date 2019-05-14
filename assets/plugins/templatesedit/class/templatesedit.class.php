@@ -1,12 +1,8 @@
 <?php
 /**
  * Created by PhpStorm.
- * @author 64j <64j@mail.ru>
+ * @author 64j
  */
-
-//error_reporting(E_ALL);
-//ini_set("display_error", true);
-//ini_set("error_reporting", E_ALL);
 
 class templatesedit
 {
@@ -246,7 +242,7 @@ class templatesedit
 
     protected function renderTabs()
     {
-        global $_lang, $richtexteditorIds, $richtexteditorOptions;
+        global $richtexteditorIds, $richtexteditorOptions;
 
         $out = '';
         $this->added_fields = [];
