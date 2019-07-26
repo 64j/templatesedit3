@@ -202,7 +202,7 @@ class templatesedit
             foreach ($tab as $colId => $col) {
                 if (is_array($col)) {
                     foreach ($col as $fieldsId => $fields) {
-                        if (substr($fieldsId, 0, 7) == 'fields:') {
+                        if ($fieldsId == 'fields' || substr($fieldsId, 0, 7) == 'fields:') {
                             foreach ($fields as $key => $field) {
                                 if (isset($this->tvars[$key])) {
                                     unset($categories[$this->tvars[$key]['category']][$key]);
