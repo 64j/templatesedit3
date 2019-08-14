@@ -231,7 +231,11 @@ class templatesedit
             }
             foreach ($categories as $k => $fields) {
                 if (!in_array($k, $this->params['excludeTvCategory'])) {
-                    $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] += $fields;
+                    foreach ($fields as $key => $field) {
+                        if (!isset($this->tvars[$key])) {
+                            $this->config[$this->params['default.tab']]['col:0:12']['fields:0'] += [$key => $field];
+                        }
+                    }
                     unset($this->config[$this->params['default.tab']]['col:0:12']['category:' . $k]);
                 }
             }
