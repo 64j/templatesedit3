@@ -349,7 +349,13 @@ class templateseditbuilder
         $data = !empty($_POST['templatesedit_builder_data']) ? $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_data']) : '';
 
         if (!empty($data)) {
-            file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+            if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
+                if (file_get_contents($file[0]) != $data) {
+                    file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+                }
+            } else {
+                file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+            }
         } else {
             if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
                 unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
