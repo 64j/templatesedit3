@@ -195,14 +195,14 @@ class templatesedit
             }
 
             if (isset($tab['fields'])) {
-                $tab['col:0:12']['fields'] = $tab['fields'];
+                $tab['col:0:12']['fields:0'] = $tab['fields'];
                 unset($tab['fields']);
             }
 
             foreach ($tab as $colId => $col) {
                 if (is_array($col)) {
                     foreach ($col as $fieldsId => $fields) {
-                        if ($fieldsId == 'fields' || substr($fieldsId, 0, 7) == 'fields:') {
+                        if (substr($fieldsId, 0, 7) == 'fields:') {
                             foreach ($fields as $key => $field) {
                                 if (isset($this->tvars[$key])) {
                                     unset($categories[$this->tvars[$key]['category']][$key]);
