@@ -54,6 +54,8 @@ class templatesedit
 
     public function renderAfterTemplate()
     {
+        global $richtexteditorIds, $richtexteditorOptions;
+
         $out = '';
 
         if (isset($this->config['#Static']) && $tabContent = $this->renderTab($this->config['#Static'])) {
@@ -82,6 +84,9 @@ class templatesedit
             }
             $out .= '<!-- end hidden fields -->';
         }
+
+        $richtexteditorIds = $this->richtexteditorIds;
+        $richtexteditorOptions = $this->richtexteditorOptions;
 
         return $out;
     }
@@ -287,8 +292,6 @@ class templatesedit
 
     protected function renderTabs()
     {
-        global $richtexteditorIds, $richtexteditorOptions;
-
         $out = '';
         $this->added_fields = [];
 
@@ -318,9 +321,6 @@ class templatesedit
                 }
             }
         }
-
-        $richtexteditorIds = $this->richtexteditorIds;
-        $richtexteditorOptions = $this->richtexteditorOptions;
 
         return $out;
     }
