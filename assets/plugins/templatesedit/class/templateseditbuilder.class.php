@@ -352,6 +352,8 @@ class templateseditbuilder
             if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
                 if (file_get_contents($file[0]) != $data) {
                     file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+                } else {
+                    unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
                 }
             } else {
                 file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
@@ -360,11 +362,19 @@ class templateseditbuilder
             if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
                 unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
             }
+            if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
+                unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
+            }
         }
 
         switch ($this->params['action']) {
             case 'set_default':
                 if (!empty($data)) {
+                    if ($files = glob($this->basePath . 'configs/template_*_default.json')) {
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
+                    }
                     file_put_contents($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json', $data);
                 }
                 break;
