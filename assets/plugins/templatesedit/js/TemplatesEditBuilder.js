@@ -341,7 +341,7 @@ var TemplatesEditBuilder = function(el, config) {
       title: 'Title',
       content: this.tpl(this.templates.input, {
         name: 'title',
-        value: data['title']
+        value: this.escapeHtml(data['title'])
       })
     });
 
