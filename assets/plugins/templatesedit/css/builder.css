@@ -68,6 +68,8 @@
 .builder .b-category .b-field-name { width: 11.15rem }
 .builder .b-items .b-category-title { margin-bottom: 0 }
 .builder .b-category .row-col { display: none }
+.builder .b-tab[data-id="#Static"] { margin-top: -2rem }
+.builder .b-tab[data-id="#Static"] .b-tab-title { display: none }
 /* theme colors */
 .builder .b-settings input[type="radio"] + i, .builder .b-settings input[type="checkbox"] + i, .builder .b-settings .b-btn-more { background-color: #e0e0e0 }
 .builder .b-settings input[type="radio"]:checked + i, .builder .b-settings input[type="checkbox"]:checked + i { background-color: #1976d2; color: #fff }

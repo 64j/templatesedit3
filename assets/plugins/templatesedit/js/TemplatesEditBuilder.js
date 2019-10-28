@@ -37,7 +37,7 @@ var TemplatesEditBuilder = function(el, config) {
 
   TemplatesEdit.prototype.templates = {
     tab: '' +
-        '<div class="b-tab b-item b-draggable" data-id="{id}">\n' +
+        '<div class="b-tab b-item {class}" data-id="{id}">\n' +
         '    <input type="checkbox" id="tab-options-radio-{id}" class="b-tab-default b-hidden" data-id="{id}" name="b-tab-default" {checked}>\n' +
         '    <div class="b-tab-title sectionHeader">\n' +
         '        <div class="row align-items-center">\n' +
@@ -275,7 +275,7 @@ var TemplatesEditBuilder = function(el, config) {
       this.delItem(parent);
     }
     if (!this.el.children.length) {
-      this.addTab(null, true);
+      this.addTab(null, true, true);
     }
     if (this.el.children.length === 1) {
       this.el.firstElementChild.querySelector('[name="b-tab-default"]').checked = true;
@@ -718,14 +718,24 @@ var TemplatesEditBuilder = function(el, config) {
     this.initDraggable();
   };
 
-  TemplatesEdit.prototype.addTab = function(tab, d) {
+  TemplatesEdit.prototype.addTab = function(tab, d, f) {
     var tabs = {}, id = 'tab' + new Date().getTime();
+    f = typeof f !== 'undefined' ? f : false;
     tabs[id] = {
       id: id,
       title: 'New tab',
       default: d,
       'col:0:12': {}
     };
+    if (f) {
+      id = '#Static';
+      tabs[id] = {
+        id: id,
+        title: 'Static',
+        default: false,
+        'col:0:12': {}
+      };
+    }
     if (tab) {
       tab.insertAdjacentHTML('afterend', this.renderTabs(tabs));
     } else {
@@ -883,6 +893,7 @@ var TemplatesEditBuilder = function(el, config) {
         out += this.tpl(this.templates.tab, {
           id: k,
           title: title,
+          class: k === '#Static' ? '' : 'b-draggable',
           checked: tab['default'] ? 'checked' : '',
           content: this.renderTab(data[k]),
           settings: this.escapeHtml(JSON.stringify({

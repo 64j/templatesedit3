@@ -83,6 +83,13 @@ class templateseditbuilder
                 unset($tab['fields']);
             }
         }
+
+        if (!isset($this->config['#Static'])) {
+            $this->config['#Static'] = [
+                'title' => 'Static',
+                'col:0:12' => []
+            ];
+        }
     }
 
     protected function fillData()

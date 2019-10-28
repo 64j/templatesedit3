@@ -6,6 +6,7 @@
 
 class templatesedit
 {
+    private static $instance = null;
     protected $evo;
     protected $doc;
     protected $params;
@@ -18,8 +19,18 @@ class templatesedit
     protected $categories = [];
     protected $tvars = [];
 
-    public function __construct()
+    public static function getInstance($params = [])
     {
+        if (self::$instance === null) {
+            self::$instance = new static($params);
+        }
+
+        return self::$instance;
+    }
+
+    public function __construct($doc = [])
+    {
+        $this->doc = $doc;
         $this->evo = evolutionCMS();
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
@@ -30,10 +41,8 @@ class templatesedit
         $this->params['col.settings'] = [];
     }
 
-    public function renderTemplate($doc = [])
+    public function renderTemplate()
     {
-        $this->doc = $doc;
-
         $this->setDefaults();
         $this->getConfig();
         $this->getTemplateVariables();
@@ -41,6 +50,40 @@ class templatesedit
         return $this->view('document', [
             'content' => $this->renderTabs()
         ]);
+    }
+
+    public function renderAfterTemplate()
+    {
+        $out = '';
+
+        if (isset($this->config['#Static']) && $tabContent = $this->renderTab($this->config['#Static'])) {
+            $out .= $this->view('element', [
+                'id' => 'Static',
+                'class' => 'col p-1',
+                'content' => $this->view('element', [
+                    'class' => 'row form-row',
+                    'content' => $tabContent
+                ])
+            ]);
+        }
+
+        $default_fields = array_diff(array_keys($this->default_fields), $this->added_fields);
+        if ($default_fields) {
+            $out .= '<!-- hidden fields -->';
+            foreach ($default_fields as $fieldName) {
+                if (in_array($fieldName, ['introtext', 'content'])) {
+                    continue;
+                }
+                $out .= $this->form('input', [
+                    'type' => 'hidden',
+                    'name' => $fieldName,
+                    'value' => isset($this->doc[$fieldName]) ? $this->evo->htmlspecialchars($this->doc[$fieldName]) : ''
+                ]);
+            }
+            $out .= '<!-- end hidden fields -->';
+        }
+
+        return $out;
     }
 
     protected function setDefaults()
@@ -260,7 +303,7 @@ class templatesedit
         }
 
         foreach ($this->config as $tabName => &$tab) {
-            if ($tab['title']) {
+            if ($tab['title'] && $tabName != '#Static') {
                 $tabContent = $this->renderTab($tab);
                 if ($tabContent) {
                     $out .= $this->view('tab', [
@@ -276,22 +319,6 @@ class templatesedit
                     unset($this->config[$tabName]);
                 }
             }
-        }
-
-        $default_fields = array_diff(array_keys($this->default_fields), $this->added_fields);
-        if ($default_fields) {
-            $out .= '<!-- hidden fields -->';
-            foreach ($default_fields as $fieldName) {
-                if (in_array($fieldName, ['introtext', 'content'])) {
-                    continue;
-                }
-                $out .= $this->form('input', [
-                    'type' => 'hidden',
-                    'name' => $fieldName,
-                    'value' => isset($this->doc[$fieldName]) ? $this->evo->htmlspecialchars($this->doc[$fieldName]) : ''
-                ]);
-            }
-            $out .= '<!-- end hidden fields -->';
         }
 
         $richtexteditorIds = $this->richtexteditorIds;
