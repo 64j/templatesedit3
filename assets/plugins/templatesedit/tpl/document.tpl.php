@@ -107,7 +107,7 @@
     input[type=checkbox], input[type=radio] { padding: .5em }
     .warning + [data-tooltip].fa-question-circle { margin: 0.3rem 0.5rem 0; }
     input[name*="date"] + .input-group-addon, input[name="createdon"] + .input-group-addon, input[name="editedon"] + .input-group-addon, input[name="menuindex"] + .input-group-addon { float: left; width: auto }
-    form#mutate input[name="menuindex"] { flex-basis: 0; flex-grow: 1;  padding: 0.46153846em .5em; max-width: 100%; text-align: inherit }
+    form#mutate input[name="menuindex"] { flex-basis: 0; flex-grow: 1; padding: 0.46153846em .5em; max-width: 100%; text-align: inherit }
     .form-control-lg, .input-group-lg > .form-control, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .btn, input.form-control-lg, .btn-group-lg > .btn, .btn-lg, .input-group-addon.form-control-lg, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .input-group-addon.btn, .input-group-lg > .input-group-btn > select.btn:not([size]):not([multiple]), .input-group-lg > select.form-control:not([size]):not([multiple]), .input-group-lg > select.input-group-addon:not([size]):not([multiple]), select.form-control-lg:not([size]):not([multiple]), .input-group-lg > .form-control + a { height: 2.5625rem }
     #documentPane input[name^=tv]:not([class*=mtv]) + input[type=button].form-control { margin-top: 0 }
     .input-group-lg > textarea.form-control { height: inherit }
@@ -134,40 +134,40 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.choicesList').forEach(function(a) {
-      a.addEventListener('click', function(a) {
-        var b = a.target;
-        if ('I' === b.tagName) {
-          var c = document.getElementById(this.getAttribute('data-target')),
-              d = this.getAttribute('data-separator'),
-              e = {},
-              h = '' + b.innerHTML;
-          if ('' === c.value) {
-            e[h] = !0, b.classList.add('selected');
+    document.querySelectorAll('.choicesList').forEach(function(e) {
+      e.addEventListener('click', function(e) {
+        var t = e.target;
+        if ('I' === t.tagName) {
+          var n = document.getElementById(this.getAttribute('data-target')), a = this.getAttribute('data-separator'), i = {}, c = '' + t.innerHTML;
+          if ('' === n.value) {
+            i[c] = !0, t.classList.add('selected');
           } else {
-            var f = function(a) {
-                  return a.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                },
-                g = new RegExp(f(d));
-            e = c.value.split(g), e = Object.keys(e).filter(e.hasOwnProperty.bind(e)).reduce(function(a, b) {
-              return a[e[b].trim()] = b, a;
-            }, {}), b.classList.contains('selected') ? (delete e[h], b.classList.remove('selected')) : (e[h] = !0, b.classList.add('selected'));
+            var d = new RegExp(a.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+            i = n.value.split(d), i = Object.keys(i).filter(i.hasOwnProperty.bind(i)).reduce(function(e, t) {return e[i[t].trim()] = t, e;}, {}), t.classList.contains('selected') ? (delete i[c], t.classList.remove('selected')) : (i[c] = !0, t.classList.add('selected'));
           }
-          c.value = Object.keys(e).join(d);
+          n.value = Object.keys(i).join(a);
         }
       }, !0);
     }), document.mutate.save.addEventListener('click', function() {
-      var a = document.querySelector('[required]:invalid');
-      if (a) {
-        var b = a.closest('.tab-page').id;
-        for (var c in tpSettings.pages) {
-          if (tpSettings.pages.hasOwnProperty(c) && tpSettings.pages[c].element.id === b) {
-            tpSettings.setSelectedIndex(tpSettings.pages[c].index);
+      var e = document.querySelector('[required]:invalid');
+      if (e) {
+        var t = e.closest('.tab-page').id;
+        for (var n in tpSettings.pages) {
+          if (tpSettings.pages.hasOwnProperty(n) && tpSettings.pages[n].element.id === t) {
+            tpSettings.setSelectedIndex(tpSettings.pages[n].index);
             break;
           }
         }
       }
-    }, !1);
+    }, !1), document.mutate.querySelectorAll('label[for]').forEach(function(e) {
+      e.addEventListener('mousedown', function(e) {
+        if (e.ctrlKey) {
+          e.preventDefault();
+          var t = document.createElement('input'), n = document.activeElement;
+          t.value = '[*' + this.getAttribute('data-key') + '*]', document.body.appendChild(t), t.select(), document.execCommand('copy'), document.body.removeChild(t), n.focus();
+        }
+      }, !1);
+    });
   }, !1);
 
   !function(a) {

@@ -795,7 +795,7 @@ class templatesedit
             $data['reverse'] = !empty($data['reverse']) ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
 
             if (trim($data['title'])) {
-                $title = '<label for="' . $labelFor . '" class="warning">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
+                $title = '<label for="' . $labelFor . '" class="warning" data-key="' . $key . '">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
                 if ($data['position'] == 'c') {
                     $leftClass .= ' col-xs-12 col-12';
                     $rightClass .= ' col-xs-12 col-12';
