@@ -135,6 +135,10 @@ class templatesedit
             $this->doc['link_attributes'] = '';
         }
 
+        if (!isset($this->doc['contentType'])) {
+            $this->doc['contentType'] = 'text/html';
+        }
+
         if ($this->evo->manager->action == 85 || (isset($_REQUEST['isfolder']) && $_REQUEST['isfolder'] == 1)) {
             $this->doc['isfolder'] = 1;
         }
