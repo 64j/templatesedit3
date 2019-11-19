@@ -439,6 +439,7 @@ class templatesedit
         $labelFor = $key;
         $isTv = false;
 
+        $data['name'] = $key;
         $data['title'] = isset($data['title']) ? $data['title'] : '';
         $data['caption'] = isset($data['caption']) ? $data['caption'] : '';
         $data['help'] = isset($data['help']) && $data['help'] != '' ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
