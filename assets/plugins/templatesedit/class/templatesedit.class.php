@@ -836,7 +836,7 @@ class templatesedit
             }
 
             // show tv image
-            if ($data['type'] == 'image' && $this->params['showTvImage']) {
+            if (!empty($data['type']) && $data['type'] == 'image' && $this->params['showTvImage']) {
                 $field .= $this->form('thumb', [
                     'name' => $isTv ? 'tv' . $data['id'] : $key,
                     'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '') : ($value ? MODX_SITE_URL . $value : ''),
@@ -845,7 +845,7 @@ class templatesedit
             }
 
             // show datalist
-            if (($data['type'] == 'text' || $data['type'] == 'number') && $data['elements']) {
+            if (!empty($data['type']) && ($data['type'] == 'text' || $data['type'] == 'number') && $data['elements']) {
                 $options = explode('||', $data['elements']);
                 $field .= $this->form('datalist', [
                     'id' => $data['id'],
