@@ -439,6 +439,7 @@ class templatesedit
         $labelFor = $key;
         $isTv = false;
 
+        $data['id'] = isset($data['id']) ? $data['id'] : $key;
         $data['name'] = isset($data['name']) ? $data['name'] : $key;
         $data['title'] = isset($data['title']) ? $data['title'] : '';
         $data['caption'] = isset($data['caption']) ? $data['caption'] : '';
