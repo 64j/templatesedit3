@@ -446,14 +446,15 @@ class templatesedit
         $data['description'] = isset($data['description']) && $data['description'] != '' ? '<span class="comment d-block">' . $data['description'] . '</span>' : '';
         $data['pattern'] = isset($data['pattern']) ? ' pattern="' . $data['pattern'] . '"' : '';
         $data['required'] = !empty($data['required']) ? ' required' : '';
+        $data['elements'] = isset($data['elements']) ? $data['elements'] : '';
+        $data['type'] = !empty($data['type']) ? $data['type'] : 'text';
 
         if (isset($this->default_fields[$key])) {
             if (isset($data['type']) && $key != 'weblink') {
                 $rowClass .= ' form-row-' . $data['type'];
                 $default = isset($data['default']) ? $data['default'] : '';
-                $elements = isset($data['elements']) ? $data['elements'] : '';
                 $value = isset($this->doc[$key]) ? $this->doc[$key] : $default;
-                $field = renderFormElement($data['type'], $key, $default, $elements, $value, '', $data);
+                $field = renderFormElement($data['type'], $key, $default, $data['elements'], $value, '', $data);
                 $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
@@ -836,7 +837,7 @@ class templatesedit
             }
 
             // show tv image
-            if (!empty($data['type']) && $data['type'] == 'image' && $this->params['showTvImage']) {
+            if ($data['type'] == 'image' && $this->params['showTvImage']) {
                 $field .= $this->form('thumb', [
                     'name' => $isTv ? 'tv' . $data['id'] : $key,
                     'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '') : ($value ? MODX_SITE_URL . $value : ''),
@@ -845,7 +846,7 @@ class templatesedit
             }
 
             // show datalist
-            if (!empty($data['type']) && ($data['type'] == 'text' || $data['type'] == 'number') && $data['elements']) {
+            if (($data['type'] == 'text' || $data['type'] == 'number') && $data['elements']) {
                 $options = explode('||', $data['elements']);
                 $field .= $this->form('datalist', [
                     'id' => $data['id'],
