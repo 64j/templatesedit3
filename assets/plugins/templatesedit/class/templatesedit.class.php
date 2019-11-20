@@ -452,9 +452,9 @@ class templatesedit
         if (isset($this->default_fields[$key])) {
             if (isset($data['type']) && $key != 'weblink') {
                 $rowClass .= ' form-row-' . $data['type'];
-                $default = isset($data['default']) ? $data['default'] : '';
-                $value = isset($this->doc[$key]) ? $this->doc[$key] : $default;
-                $field = renderFormElement($data['type'], $key, $default, $data['elements'], $value, '', $data);
+                $data['default'] = isset($data['default']) ? $data['default'] : '';
+                $data['value'] = isset($this->doc[$key]) ? $this->doc[$key] : $data['default'];
+                $field = renderFormElement($data['type'], $key, $data['default'], $data['elements'], $data['value'], '', $data);
                 $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
