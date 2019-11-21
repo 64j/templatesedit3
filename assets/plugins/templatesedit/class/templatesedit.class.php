@@ -607,7 +607,7 @@ class templatesedit
                         $optgroup = [];
                         while ($row = $this->evo->db->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
-                            $optgroup[$category][$row['id']] = $row['templatename'];
+                            $optgroup[$category][$row['id']] = $row['templatename'] . ' (' . $row['id'] . ')';
                         }
                         $field .= $this->form('select', [
                             'name' => 'template',
