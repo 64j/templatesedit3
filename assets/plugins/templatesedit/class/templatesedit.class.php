@@ -517,11 +517,13 @@ class templatesedit
                                 'class' => 'input-group-btn',
                                 'content' => $this->view('element', [
                                         'tag' => 'span',
-                                        'class' => 'btn btn-secondary fa fa-angle-left',
+                                        'class' => 'btn btn-secondary',
+                                        'content' => '<i class="fa fa-angle-left"></i>',
                                         'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
                                     ]) . $this->view('element', [
                                         'tag' => 'span',
-                                        'class' => 'btn btn-secondary fa fa-angle-right',
+                                        'class' => 'btn btn-secondary',
+                                        'content' => '<i class="fa fa-angle-right"></i>',
                                         'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
                                     ])
                             ]) . $this->form('input', [
