@@ -549,15 +549,17 @@ class templatesedit
                     case 'menuindex':
                         $rightClass .= 'input-group';
                         $field .= $this->view('element', [
-                                'class' => 'input-group-btn',
+                                'class' => 'input-group-prepend',
                                 'content' => $this->view('element', [
                                         'tag' => 'span',
-                                        'class' => 'btn btn-secondary fa fa-angle-left',
-                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
+                                        'class' => 'btn btn-secondary',
+                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"',
+                                        'content' => '<i class="fa fa-angle-left"></i>'
                                     ]) . $this->view('element', [
                                         'tag' => 'span',
-                                        'class' => 'btn btn-secondary fa fa-angle-right',
-                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"'
+                                        'class' => 'btn btn-secondary',
+                                        'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"',
+                                        'content' => '<i class="fa fa-angle-right"></i>'
                                     ])
                             ]) . $this->form('input', [
                                 'name' => $key,
