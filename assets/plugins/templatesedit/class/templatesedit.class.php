@@ -17,7 +17,7 @@ class templatesedit
     protected $default_fields = [];
     protected $added_fields = [];
     protected $categories = [];
-    protected $tvars = [];
+    protected $tvars = null;
 
     public static function getInstance($params = [])
     {
@@ -219,8 +219,12 @@ class templatesedit
         return $this->config;
     }
 
-    protected function getTemplateVariables()
+    public function getTemplateVariables()
     {
+        if (is_array($this->tvars)) {
+            return $this->tvars;
+        }
+
         $docgrp = '';
         if (!empty($_SESSION['mgrDocgroups'])) {
             $docgrp = implode(',', $_SESSION['mgrDocgroups']);
@@ -291,7 +295,7 @@ class templatesedit
             }
         }
 
-        return $this->config;
+        return $this->tvars;
     }
 
     protected function renderTabs()
@@ -1079,6 +1083,16 @@ class templatesedit
                 $this->evo->db->update($data, '[+prefix+]site_content', 'id=' . $id);
             }
         }
+    }
+
+    public function getDocument()
+    {
+        return $this->doc;
+    }
+
+    public function getCategories()
+    {
+        return $this->categories;
     }
 
     protected function dd($str = '', $exit = false)
