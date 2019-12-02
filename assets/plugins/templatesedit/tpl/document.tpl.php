@@ -91,7 +91,7 @@
     .input-group .input-group-btn { display: flex; -ms-flex: 0 0 auto; flex: 0 0 auto; width: auto; max-width: none }
     .form-row .col-auto { padding-left: 0 }
     .form-row .col-title { width: 15rem }
-    .form-row .row-col { display: flex; flex-wrap: wrap; flex-direction: row; align-content: start; padding: 0 }
+    .form-row .row-col { display: flex; flex-wrap: wrap; flex-direction: row; align-content: start; padding-right: .75rem }
     .form-row .row-col > .row:not(.col):not(.col-sm):not(.col-md):not(.col-lg):not(.col-xl) { -ms-flex: 0 0 100%; flex: 0 0 100%; max-width: 100% }
     .form-row .row-col > .row.col, .form-row .row-col > .row.col-sm, .form-row .row-col > .row.col-md, .form-row .row-col > .row.col-lg, .form-row .row-col > .row.col-xl { align-content: start; padding: 0; margin-right: 0 }
     .form-row.form-row-date > div:last-child, .form-row.form-row-image > div:last-child, .form-row.form-row-file > div:last-child { display: flex; flex-wrap: wrap; flex-direction: row; align-items: flex-start }
