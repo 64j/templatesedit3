@@ -274,10 +274,8 @@ var TemplatesEditBuilder = function(el, config) {
     } else {
       this.delItem(parent);
     }
-    if (!this.el.children.length) {
-      this.addTab(null, true, true);
-    }
     if (this.el.children.length === 1) {
+      this.addTab(null, true, true);
       this.el.firstElementChild.querySelector('[name="b-tab-default"]').checked = true;
     }
     this.sortItems(this.elUnusedFields, 'name');
