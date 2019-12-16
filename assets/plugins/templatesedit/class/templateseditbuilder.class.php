@@ -83,6 +83,13 @@ class templateseditbuilder
                 unset($tab['fields']);
             }
         }
+
+        if (!isset($this->config['#Static'])) {
+            $this->config['#Static'] = [
+                'title' => 'Static',
+                'col:0:12' => []
+            ];
+        }
     }
 
     protected function fillData()
@@ -349,16 +356,32 @@ class templateseditbuilder
         $data = !empty($_POST['templatesedit_builder_data']) ? $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_data']) : '';
 
         if (!empty($data)) {
-            file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+            if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
+                if (file_get_contents($file[0]) != $data) {
+                    file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+                } else {
+                    unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
+                }
+            } else {
+                file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+            }
         } else {
             if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
                 unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
+            }
+            if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
+                unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
             }
         }
 
         switch ($this->params['action']) {
             case 'set_default':
                 if (!empty($data)) {
+                    if ($files = glob($this->basePath . 'configs/template_*_default.json')) {
+                        foreach ($files as $file) {
+                            unlink($file);
+                        }
+                    }
                     file_put_contents($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json', $data);
                 }
                 break;

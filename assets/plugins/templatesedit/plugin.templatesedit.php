@@ -8,7 +8,13 @@ $e = $modx->event;
 if ($e->name == 'OnDocFormTemplateRender') {
     global $content;
     require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templatesedit.class.php';
-    $e->addOutput((new templatesedit())->renderTemplate($content));
+    $e->addOutput(templatesedit::getInstance($content)->renderTemplate());
+}
+
+if ($e->name == 'OnDocFormRender') {
+    global $content;
+    require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templatesedit.class.php';
+    $e->addOutput(templatesedit::getInstance($content)->renderAfterTemplate());
 }
 
 if ($e->name == 'OnDocFormSave') {
