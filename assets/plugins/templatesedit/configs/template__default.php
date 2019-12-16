@@ -7,12 +7,10 @@ global $_lang;
 
 return [
     'General' => [
-        'default' => true,
         'title' => $_lang['settings_general'],
+        'default' => true,
         'fields' => [
-            'pagetitle' => [
-                'class' => 'form-control-lg'
-            ],
+            'pagetitle' => [],
             'longtitle' => [],
             'description' => [],
             'menutitle' => [],
@@ -25,14 +23,9 @@ return [
         'title' => $_lang['description'],
         'fields' => [
             'introtext' => [
-                'titleClass' => 'col-xs-12',
-                'fieldClass' => 'col-xs-12',
                 'rows' => 5
             ],
             'content' => [
-                'titleClass' => 'col-xs-12 form-row pt-1',
-                'fieldClass' => 'col-xs-12',
-                'selectClass' => 'float-xs-right',
                 'rows' => 15
             ],
             'richtext' => [],
