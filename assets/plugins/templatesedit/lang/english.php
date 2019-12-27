@@ -20,5 +20,9 @@ return [
     'info.used_default_config' => 'Config is used by default',
     'info.used_config_role_admin' => 'Use admin role configuration',
     'info.default_template' => 'This config is used as global.',
-    'info.there_is_config' => 'There is a saved config for this template.'
+    'info.there_is_config' => 'There is a saved config for this template.',
+    // import / export
+    'import_export' => 'Import / Export',
+    'import.btn' => 'Import',
+    'export.btn' => 'Export',
 ];

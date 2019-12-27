@@ -194,6 +194,12 @@ var TemplatesEditBuilder = function(el, config) {
       if (target.classList.contains('b-btn-empty')) {
         self.onDelete(target);
       }
+      if (target.id === 'builder_import') {
+        self.import(document.getElementById('builder_file'));
+      }
+      if (target.id === 'builder_export') {
+        self.export();
+      }
     });
 
     this.el.addEventListener('click', function(e) {
@@ -743,17 +749,24 @@ var TemplatesEditBuilder = function(el, config) {
   };
 
   TemplatesEdit.prototype.delItem = function(el) {
+    var name = el.getAttribute('data-name');
     if (el.classList.contains('b-category')) {
-      this.elUnusedCategories.appendChild(el);
+      if (!this.elUnusedCategories.querySelectorAll('[data-name="' + name + '"]').length) {
+        this.elUnusedCategories.appendChild(el);
+      }
       this.elUnusedTvars.querySelectorAll('[data-category="' + el.getAttribute('data-id') + '"]:not(.b-add)').forEach(function(el) {
         el.style.display = 'block';
       });
     } else {
       el.classList.remove('b-required-checked');
       if (el.getAttribute('data-type') === 'tv') {
-        this.elUnusedTvars.appendChild(el);
+        if (!this.elUnusedTvars.querySelectorAll('[data-name="' + name + '"]').length) {
+          this.elUnusedTvars.appendChild(el);
+        }
       } else {
-        this.elUnusedFields.appendChild(el);
+        if (!this.elUnusedFields.querySelectorAll('[data-name="' + name + '"]').length) {
+          this.elUnusedFields.appendChild(el);
+        }
       }
     }
   };
@@ -987,6 +1000,33 @@ var TemplatesEditBuilder = function(el, config) {
       required: data['required'] ? 'checked' : '',
       settings: this.escapeHtml(JSON.stringify(data))
     });
+  };
+
+  TemplatesEdit.prototype.import = function(el) {
+    if (typeof el.files !== 'undefined') {
+      var self = this, file = el.files[0], reader = new FileReader();
+      if (file && ~file.name.indexOf('.json')) {
+        reader.onload = function() {
+          self.dataEl.value = reader.result;
+          self.init();
+          self.initDraggable();
+        };
+        reader.readAsText(file);
+      }
+    }
+  };
+
+  TemplatesEdit.prototype.export = function() {
+    this.build();
+    var blob = new Blob([this.dataEl.value]);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL.call(this, blob, {
+      type: 'text/json;charset=utf-8;'
+    });
+    a.download = 'template.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   TemplatesEdit.prototype.tpl = function(template, data, isDom, cleanKeys) {

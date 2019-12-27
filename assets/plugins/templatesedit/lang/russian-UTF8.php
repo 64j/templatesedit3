@@ -20,5 +20,9 @@ return [
     'info.used_default_config' => 'Используется конифг по умолчанию',
     'info.used_config_role_admin' => 'Использовать конфигурацию роли администратора',
     'info.default_template' => 'Этот конфиг используется как основной',
-    'info.there_is_config' => 'Есть сохраненный конфиг'
+    'info.there_is_config' => 'Есть сохраненный конфиг',
+    // import / export
+    'import_export' => 'Импорт / Экспорт',
+    'import.btn' => 'Импорт',
+    'export.btn' => 'Экспорт',
 ];

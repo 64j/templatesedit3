@@ -20,5 +20,9 @@ return [
     'info.used_default_config' => 'La configuración se usa por defecto',
     'info.used_config_role_admin' => 'Usar la configuración del rol de administrador',
     'info.default_template' => 'Esta configuración se utiliza como global.',
-    'info.there_is_config' => 'Hay una configuración guardada para esta plantilla.'
+    'info.there_is_config' => 'Hay una configuración guardada para esta plantilla.',
+    // import / export
+    'import_export' => 'Importar / Exportar',
+    'import.btn' => 'Importar',
+    'export.btn' => 'Exportar',
 ];

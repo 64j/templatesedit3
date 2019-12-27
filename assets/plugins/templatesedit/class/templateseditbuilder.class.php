@@ -61,10 +61,11 @@ class templateseditbuilder
         $this->params['config'] = $this->params['id'] . '__' . $this->params['templatesedit_builder_role'];
         $this->params['action'] = isset($_POST['templatesedit_builder_action']) && $_POST['templatesedit_builder_action'] != '' ? $_POST['templatesedit_builder_action'] : '';
 
+        $this->params['config_default'] = [];
         $this->params['config_is_default'] = false;
         $this->params['check_this_config'] = false;
         $this->params['check_base_config'] = false;
-        $this->params['check_default_config'] = false;
+        $this->params['check_default_config'] = 0;
     }
 
     protected function setDefaultParams()
@@ -131,7 +132,7 @@ class templateseditbuilder
         if ($this->evo->db->getRecordCount($sql)) {
             while ($row = $this->evo->db->getRow($sql)) {
                 $pf = '&nbsp;&nbsp;&nbsp; ';
-                if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json')) {
+                if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') || (!is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') && !empty($this->params['config_default'][$row['id']]))) {
                     $pf = '★ ';
                 }
                 $users[] = [
@@ -321,25 +322,34 @@ class templateseditbuilder
     protected function getConfig()
     {
         $this->config = [];
-        $json = '';
+        $file = '';
 
-        if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
-            $json = $this->params['check_default_config'] = $file[0];
-            if ($this->params['check_default_config'] == $this->basePath . 'configs/template_' . $this->params['id'] . '_default.json') {
-                $this->params['config_is_default'] = $this->params['check_default_config'];
+        if ($files = glob($this->basePath . 'configs/template__*__default.json')) {
+            preg_match('/template__(.*)__default\.json/', $files[0], $matches);
+            if (!empty($matches[1])) {
+                $this->setDefaultConfig($matches[1]);
             }
         }
 
+        if (!empty($this->params['config_default']['default'])) {
+            $file = $this->params['config_default']['default'];
+            $this->params['config_is_default'] = $this->params['check_default_config'] == $this->params['id'];
+        }
+
+        if (file_exists($this->params['config_default'][$this->params['templatesedit_builder_role']])) {
+            $file = $this->params['config_default'][$this->params['templatesedit_builder_role']];
+        }
+
         if (file_exists($this->basePath . 'configs/template__' . $this->params['id'] . '__1.json')) {
-            $json = $this->params['check_base_config'] = $this->basePath . 'configs/template__' . $this->params['id'] . '__1.json';
+            $file = $this->params['check_base_config'] = $this->basePath . 'configs/template__' . $this->params['id'] . '__1.json';
         }
 
         if (file_exists($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
-            $json = $this->params['check_this_config'] = $this->basePath . 'configs/template__' . $this->params['config'] . '.json';
+            $file = $this->params['check_this_config'] = $this->basePath . 'configs/template__' . $this->params['config'] . '.json';
         }
 
-        if ($json) {
-            $this->config = json_decode(file_get_contents($json), true);
+        if ($file) {
+            $this->config = json_decode(file_get_contents($file), true);
         } else {
             if (file_exists($this->basePath . 'configs/template__' . $this->params['id'] . '.php')) {
                 $this->config = require_once $this->basePath . 'configs/template__' . $this->params['id'] . '.php';
@@ -351,44 +361,61 @@ class templateseditbuilder
         return $this->config;
     }
 
+    protected function setDefaultConfig($id = 0)
+    {
+        if ($id) {
+            $this->params['check_default_config'] = $id;
+            $files = glob($this->basePath . 'configs/template__' . $id . '__*.json');
+            foreach ($files as $file) {
+                preg_match('/template__' . $id . '__(.*)\.json/', $file, $matches);
+                if (!empty($matches[1])) {
+                    $this->params['config_default'][$matches[1]] = $file;
+                }
+            }
+        }
+    }
+
     public function saveTemplate()
     {
         $data = !empty($_POST['templatesedit_builder_data']) ? $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_data']) : '';
 
         if (!empty($data)) {
-            if ($file = glob($this->basePath . 'configs/template_*_default.json')) {
-                if (file_get_contents($file[0]) != $data) {
-                    file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
-                } else {
+            if ($this->params['check_default_config'] == $this->params['id'] || empty($this->params['config_default'][$this->params['templatesedit_builder_role']]) || (!empty($this->params['config_default'][$this->params['templatesedit_builder_role']]) && file_get_contents($this->params['config_default'][$this->params['templatesedit_builder_role']]) != $data)) {
+                file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
+            } else {
+                if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
                     unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
                 }
-            } else {
-                file_put_contents($this->basePath . 'configs/template__' . $this->params['config'] . '.json', $data);
             }
         } else {
             if (is_file($this->basePath . 'configs/template__' . $this->params['config'] . '.json')) {
                 unlink($this->basePath . 'configs/template__' . $this->params['config'] . '.json');
             }
-            if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
-                unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
+            if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__default.json')) {
+                unlink($this->basePath . 'configs/template__' . $this->params['id'] . '__default.json');
             }
         }
 
         switch ($this->params['action']) {
             case 'set_default':
+                $this->setDefaultConfig($this->params['id']);
+
                 if (!empty($data)) {
-                    if ($files = glob($this->basePath . 'configs/template_*_default.json')) {
+                    if ($files = glob($this->basePath . 'configs/template__*.json')) {
                         foreach ($files as $file) {
-                            unlink($file);
+                            if (!in_array($file, $this->params['config_default'])) {
+                                unlink($file);
+                            }
                         }
                     }
-                    file_put_contents($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json', $data);
+                    file_put_contents($this->basePath . 'configs/template__' . $this->params['id'] . '__default.json', $data);
+                    file_put_contents($this->basePath . 'configs/template__' . $this->params['id'] . '__1.json', $data);
                 }
                 break;
 
             case 'del_default':
-                if (is_file($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json')) {
-                    unlink($this->basePath . 'configs/template_' . $this->params['id'] . '_default.json');
+                if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__default.json')) {
+                    unlink($this->basePath . 'configs/template__' . $this->params['id'] . '__default.json');
                 }
                 break;
 
@@ -408,9 +435,12 @@ class templateseditbuilder
         }
     }
 
-    public function deleteTemplate()
+    public function deleteTemplate($id = 0)
     {
-
+        $files = glob($this->basePath . 'configs/template__' . $id . '__*.json');
+        foreach ($files as $file) {
+            unlink($file);
+        }
     }
 
     protected function getTranslate()
