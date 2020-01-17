@@ -442,6 +442,7 @@ class templatesedit
         $rightClass = '';
         $labelFor = $key;
         $isTv = false;
+        $name = $key;
 
         $data['id'] = isset($data['id']) ? $data['id'] : $key;
         $data['name'] = isset($data['name']) ? $data['name'] : $key;
@@ -454,11 +455,16 @@ class templatesedit
         $data['elements'] = isset($data['elements']) ? $data['elements'] : '';
 
         if (isset($this->default_fields[$key])) {
-            if (isset($data['type']) && $key != 'weblink') {
+            if (isset($data['type'])) {
                 $rowClass .= ' form-row-' . $data['type'];
                 $data['default'] = isset($data['default']) ? $data['default'] : '';
-                $data['value'] = isset($this->doc[$key]) ? $this->doc[$key] : $data['default'];
-                $field = renderFormElement($data['type'], $key, $data['default'], $data['elements'], $data['value'], '', $data);
+                if ($key == 'weblink') {
+                    $name = 'ta';
+                    $data['value'] = isset($this->doc['content']) ? $this->doc['content'] : $data['default'];
+                } else {
+                    $data['value'] = isset($this->doc[$key]) ? $this->doc[$key] : $data['default'];
+                }
+                $field = renderFormElement($data['type'], $name, $data['default'], $data['elements'], $data['value'], '', $data);
                 $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);

@@ -576,89 +576,86 @@ var TemplatesEditBuilder = function(el, config) {
       content: settings
     });
 
-    if (name !== 'weblink') {
-      settings = '';
-      if (fieldType === 'field') {
-        settings += this.tpl(this.templates.setting, {
-          title: 'Default value',
-          content: this.tpl(this.templates.input, {
-            name: 'default',
-            value: this.escapeHtml(data['default'])
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Type',
-          content: this.tpl(this.templates.select, {
-            name: 'type',
-            options: (function(a) {
-              var optgroup, options;
-              optgroup = a.tpl(a.templates.selectOption, {
-                value: '',
-                title: 'default'
-              });
-              for (var g in a.data_types) {
-                if (a.data_types.hasOwnProperty(g)) {
-                  options = '';
-                  for (var o in a.data_types[g]) {
-                    if (a.data_types[g].hasOwnProperty(o)) {
-                      options += a.tpl(a.templates.selectOption, {
-                        title: a.data_types[g][o],
-                        value: o,
-                        selected: o === data['type'] ? 'selected' : ''
-                      });
-                    }
+    settings = '';
+    if (fieldType === 'field') {
+      settings += this.tpl(this.templates.setting, {
+        title: 'Default value',
+        content: this.tpl(this.templates.input, {
+          name: 'default',
+          value: this.escapeHtml(data['default'])
+        })
+      });
+      settings += this.tpl(this.templates.setting, {
+        title: 'Type',
+        content: this.tpl(this.templates.select, {
+          name: 'type',
+          options: (function(a) {
+            var optgroup, options;
+            optgroup = a.tpl(a.templates.selectOption, {
+              value: '',
+              title: 'default'
+            });
+            for (var g in a.data_types) {
+              if (a.data_types.hasOwnProperty(g)) {
+                options = '';
+                for (var o in a.data_types[g]) {
+                  if (a.data_types[g].hasOwnProperty(o)) {
+                    options += a.tpl(a.templates.selectOption, {
+                      title: a.data_types[g][o],
+                      value: o,
+                      selected: o === data['type'] ? 'selected' : ''
+                    });
                   }
-                  optgroup += a.tpl(a.templates.selectOptgroup, {
-                    label: g,
-                    options: options
-                  });
                 }
+                optgroup += a.tpl(a.templates.selectOptgroup, {
+                  label: g,
+                  options: options
+                });
               }
-              return optgroup;
-            })(this)
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Rows',
-          class: _t ? '' : 'b-hidden',
-          content: this.tpl(this.templates.input, {
-            name: 'rows',
-            value: _t ? data['rows'] : ''
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Possible values',
-          content: this.tpl(this.templates.textarea, {
-            name: 'elements',
-            value: data['elements'],
-            rows: 2
-          })
-        });
-      }
-      settings += this.tpl(this.templates.setting, {
-        title: 'Pattern',
-        content: this.tpl(this.templates.input, {
-          name: 'pattern',
-          value: data['pattern']
+            }
+            return optgroup;
+          })(this)
         })
       });
       settings += this.tpl(this.templates.setting, {
-        title: 'Choices (tags)',
+        title: 'Rows',
+        class: _t ? '' : 'b-hidden',
         content: this.tpl(this.templates.input, {
-          name: 'choices',
-          value: data['choices'],
-          placeholder: 'delimiter'
+          name: 'rows',
+          value: _t ? data['rows'] : ''
         })
       });
-      settingsTabs += this.tpl(this.templates.settingsContent, {
-        content: settings
+      settings += this.tpl(this.templates.setting, {
+        title: 'Possible values',
+        content: this.tpl(this.templates.textarea, {
+          name: 'elements',
+          value: data['elements'],
+          rows: 2
+        })
       });
     }
+    settings += this.tpl(this.templates.setting, {
+      title: 'Pattern',
+      content: this.tpl(this.templates.input, {
+        name: 'pattern',
+        value: data['pattern']
+      })
+    });
+    settings += this.tpl(this.templates.setting, {
+      title: 'Choices (tags)',
+      content: this.tpl(this.templates.input, {
+        name: 'choices',
+        value: data['choices'],
+        placeholder: 'delimiter'
+      })
+    });
+    settingsTabs += this.tpl(this.templates.settingsContent, {
+      content: settings
+    });
 
     settingsBlock = this.tpl(this.templates.settings, {
       name: name,
-      content: settingsTabs,
-      classBtnMore: name === 'weblink' ? 'b-hidden' : ''
+      content: settingsTabs
     }, true);
 
     settingsBlock.addEventListener('change', function(e) {
