@@ -35,6 +35,7 @@ class templatesedit
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
         $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map('trim', explode(',', $this->params['excludeTvCategory'])) : [];
+        $this->params['showTvName'] = isset($this->params['showTvName']) && $this->params['showTvName'] == 'yes';
         // default
         $this->params['default.tab'] = false;
         $this->params['role'] = $_SESSION['mgrRole'];
@@ -809,6 +810,9 @@ class templatesedit
             $data['reverse'] = !empty($data['reverse']) ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
 
             if (trim($data['title'])) {
+                if ($isTv && $this->params['showTvName']) {
+                    $data['title'] .= '<br><small class="protectedNode">[*' . $data['name'] . '*]</small>';
+                }
                 $title = '<label for="' . $labelFor . '" class="warning" data-key="' . $key . '">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
                 if ($data['position'] == 'c') {
                     $leftClass .= ' col-xs-12 col-12';
