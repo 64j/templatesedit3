@@ -672,7 +672,7 @@ class templatesedit
                         break;
 
                     case 'type':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
+                        if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby'] || $this->evo->hasPermission('change_resourcetype')) {
                             $field .= $this->form('select', [
                                 'name' => 'type',
                                 'value' => $this->doc['type'],
