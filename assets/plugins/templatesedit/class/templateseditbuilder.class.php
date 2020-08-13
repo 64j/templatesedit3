@@ -365,11 +365,17 @@ class templateseditbuilder
     {
         if ($id) {
             $this->params['check_default_config'] = $id;
-            $files = glob($this->basePath . 'configs/template__' . $id . '__*.json');
-            foreach ($files as $file) {
-                preg_match('/template__' . $id . '__(.*)\.json/', $file, $matches);
-                if (!empty($matches[1])) {
-                    $this->params['config_default'][$matches[1]] = $file;
+            if ($this->params['id'] != $id) {
+                if (is_file($this->basePath . 'configs/template__' . $id . '__default.json')) {
+                    $this->params['config_default']['default'] = $this->basePath . 'configs/template__' . $id . '__default.json';
+                }
+            } else {
+                $files = glob($this->basePath . 'configs/template__' . $id . '__*.json');
+                foreach ($files as $file) {
+                    preg_match('/template__' . $id . '__(.*)\.json/', $file, $matches);
+                    if (!empty($matches[1])) {
+                        $this->params['config_default'][$matches[1]] = $file;
+                    }
                 }
             }
         }
