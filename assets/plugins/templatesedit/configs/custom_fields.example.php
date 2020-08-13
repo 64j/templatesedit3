@@ -1,5 +1,5 @@
 <?php
-global $_lang;
+global $_lang, $modx;
 
 /*
  * To use custom_fields rename this file in custom_fields.php
@@ -21,5 +21,16 @@ return [
         'help' => 'custom_field',
         'default' => '',
         'save' => true
+    ],
+    'createdon' => [
+        'default' => $modx->toDateFormat(time()),
+        'save' => true,
+        'prepare' => function ($data, $modx) {
+            if (!empty($data)) {
+                return $modx->toTimeStamp($data);
+            } else {
+                return time();
+            }
+        }
     ],
 ];

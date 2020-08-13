@@ -1072,11 +1072,17 @@ class templatesedit
                     foreach ($custom_fields as $k => $v) {
                         if (!empty($v['save'])) {
                             if (isset($_REQUEST[$k])) {
-                                $v = $_REQUEST[$k];
-                                if (is_array($v)) {
-                                    $v = implode('||', $v);
+                                if (!empty($v['prepare'])) {
+                                    $v = $this->prepare($v['prepare'], $_REQUEST[$k]);
+                                } else {
+                                    $v = $_REQUEST[$k];
                                 }
-                                $data[$k] = $this->evo->db->escape($v);
+                                if (!is_null($v)) {
+                                    if (is_array($v)) {
+                                        $v = implode('||', $v);
+                                    }
+                                    $data[$k] = $this->evo->db->escape($v);
+                                }
                             } else {
                                 $data[$k] = isset($v['default']) ? $v['default'] : '';
                             }
@@ -1099,6 +1105,30 @@ class templatesedit
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * @param string $name
+     * @param array $data
+     * @return array|mixed|string
+     */
+    protected function prepare($name = 'prepare', $data = [])
+    {
+        if (!empty($name)) {
+            $params = [
+                'data' => $data,
+                'modx' => $this->evo,
+                '_MF' => $this
+            ];
+
+            if ((is_object($name)) || is_callable($name)) {
+                $data = call_user_func_array($name, $params);
+            } else {
+                $data = $this->evo->runSnippet($name, $params);
+            }
+        }
+
+        return $data;
     }
 
     protected function dd($str = '', $exit = false)
