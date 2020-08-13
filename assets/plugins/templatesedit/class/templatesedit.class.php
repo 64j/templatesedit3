@@ -1076,8 +1076,8 @@ class templatesedit
                     foreach ($custom_fields as $k => $v) {
                         if (!empty($v['save'])) {
                             if (isset($_REQUEST[$k])) {
-                                if (!empty($v['prepare'])) {
-                                    $v = $this->prepare($v['prepare'], $_REQUEST[$k]);
+                                if (!empty($v['prepareSave'])) {
+                                    $v = $this->prepare($v['prepareSave'], $_REQUEST[$k]);
                                 } else {
                                     $v = $_REQUEST[$k];
                                 }

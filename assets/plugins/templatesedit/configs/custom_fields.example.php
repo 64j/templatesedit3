@@ -8,6 +8,7 @@ global $_lang, $modx;
  * @help - Help for field
  * @default - default value in table site_content.
  * @save - If this key is present, then the field will be saved in the plugin for the OnDocFormSave event.
+ * @prepareSave - Processing the value after saving.
  */
 
 return [
@@ -25,7 +26,7 @@ return [
     'createdon' => [
         'default' => $modx->toDateFormat(time()),
         'save' => true,
-        'prepare' => function ($data, $modx) {
+        'prepareSave' => function ($data, $modx) {
             if (!empty($data)) {
                 return $modx->toTimeStamp($data);
             } else {
