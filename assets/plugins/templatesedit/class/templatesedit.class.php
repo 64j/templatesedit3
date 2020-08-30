@@ -232,16 +232,17 @@ class templatesedit
         }
 
         $sql = $this->evo->db->select('
-        DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
+        DISTINCT tv.*, tvc.value, tv.default_text, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
         INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid="' . $this->doc['id'] . '"
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid="' . $this->doc['template'] . '" AND (1="' . $_SESSION['mgrRole'] . '" OR ISNULL(tva.documentgroup)' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\'' . $this->doc['id'] . '\'
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid=\'' . $this->doc['template'] . '\' AND (1=\'' . $_SESSION['mgrRole'] . '\' OR 1 = CASE WHEN tva.documentgroup IS NULL THEN 1 ELSE 0 END' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
 
-        if ($this->evo->db->getRecordCount($sql)) {
-            while ($row = $this->evo->db->getRow($sql)) {
-                $this->categories[$row['category']][$row['name']] = $row;
-                $this->tvars[$row['name']] = $row;
+        while ($row = $this->evo->db->getRow($sql)) {
+            if ($row['value'] == '') {
+                $row['value'] = $row['default_text'];
             }
+            $this->categories[$row['category']][$row['name']] = $row;
+            $this->tvars[$row['name']] = $row;
         }
 
         $categories = $this->categories;
@@ -616,7 +617,7 @@ class templatesedit
                         break;
 
                     case 'template':
-                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=1', 'c.category, t.templatename ASC');
+                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=\'1\'', 'c.category, t.templatename ASC');
                         $optgroup = [];
                         while ($row = $this->evo->db->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
@@ -1039,12 +1040,14 @@ class templatesedit
         ORDER BY value ASC
         ');
 
-        if ($this->evo->db->getRecordCount($rs)) {
+        $rs = $this->evo->db->makeArray($rs);
+
+        if (count($rs)) {
             $out .= '<div class="choicesList" data-target="tv' . $id . '" data-separator="' . $separator . '">';
             $separator = trim(htmlspecialchars_decode($separator));
             $value = trim($value, $separator);
             $list = [];
-            while ($row = $this->evo->db->getRow($rs)) {
+            foreach ($rs as $row) {
                 $list = array_merge($list, array_map('trim', explode($separator, $row['value'])));
             }
             $list = array_unique($list);

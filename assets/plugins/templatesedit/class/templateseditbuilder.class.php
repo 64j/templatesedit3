@@ -129,17 +129,16 @@ class templateseditbuilder
     {
         $users = [];
         $sql = $this->evo->db->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
-        if ($this->evo->db->getRecordCount($sql)) {
-            while ($row = $this->evo->db->getRow($sql)) {
-                $pf = '&nbsp;&nbsp;&nbsp; ';
-                if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') || (!is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') && !empty($this->params['config_default'][$row['id']]))) {
-                    $pf = '★ ';
-                }
-                $users[] = [
-                    'value' => $row['id'],
-                    'title' => $pf . $row['name']
-                ];
+
+        while ($row = $this->evo->db->getRow($sql)) {
+            $pf = '&nbsp;&nbsp;&nbsp; ';
+            if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') || (!is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') && !empty($this->params['config_default'][$row['id']]))) {
+                $pf = '★ ';
             }
+            $users[] = [
+                'value' => $row['id'],
+                'title' => $pf . $row['name']
+            ];
         }
 
         return $this->form('select', [
@@ -255,11 +254,10 @@ class templateseditbuilder
             ');
 
             $this->default_categories = [];
-            if ($this->evo->db->getRecordCount($sql)) {
-                while ($row = $this->evo->db->getRow($sql)) {
-                    $this->default_tvars[$row['name']] = $row;
-                    $this->default_categories[$row['category']] = $row['category'];
-                }
+
+            while ($row = $this->evo->db->getRow($sql)) {
+                $this->default_tvars[$row['name']] = $row;
+                $this->default_categories[$row['category']] = $row['category'];
             }
 
             $this->default_categories[0] = [
@@ -280,10 +278,8 @@ class templateseditbuilder
             ORDER BY category
             ');
 
-            if ($this->evo->db->getRecordCount($sql)) {
-                while ($row = $this->evo->db->getRow($sql)) {
-                    $this->default_categories[$row['id']] = $row;
-                }
+            while ($row = $this->evo->db->getRow($sql)) {
+                $this->default_categories[$row['id']] = $row;
             }
         }
     }
