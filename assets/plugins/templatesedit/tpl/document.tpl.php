@@ -95,6 +95,7 @@
     .form-row .row-col > .row:not(.col):not(.col-sm):not(.col-md):not(.col-lg):not(.col-xl) { -ms-flex: 0 0 100%; flex: 0 0 100%; max-width: 100% }
     .form-row .row-col > .row.col, .form-row .row-col > .row.col-sm, .form-row .row-col > .row.col-md, .form-row .row-col > .row.col-lg, .form-row .row-col > .row.col-xl { align-content: start; padding: 0; margin-right: 0 }
     .form-row.form-row-date > div:last-child, .form-row.form-row-image > div:last-child, .form-row.form-row-file > div:last-child { display: flex; flex-wrap: wrap; flex-direction: row; align-items: flex-start }
+    .form-row .row-col > .form-row { padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px dashed #ddd; }
     .form-row.form-row-date .DatePicker, .form-row.form-row-image input.form-control[type="text"], .form-row.form-row-file input.form-control[type="text"] { flex-basis: 0; flex-grow: 1; max-width: 100%; width: 100% !important; min-width: auto !important }
     .form-row.form-row-date .input-group-btn, .form-row.form-row-date input + a, .form-row.form-row-image input + input[type="button"], .form-row.form-row-file input + input[type="button"] { -ms-flex: 0 0 auto; flex: 0 0 auto; width: auto; max-width: none; margin: 0 }
     .form-row.form-row-date input + a, .form-row.form-row-image input + input[type="button"], .form-row.form-row-file input + input[type="button"] { margin-left: -1px }
@@ -105,7 +106,7 @@
     .column-reverse { flex-direction: column-reverse }
     .form-row-checkbox { align-items: center }
     input[type=checkbox], input[type=radio] { padding: .5em }
-    .warning + [data-tooltip].fa-question-circle { margin: 0.3rem 0.5rem 0; }
+    .warning + [data-tooltip].fa-question-circle { margin: 0.3rem 0.5rem 0; line-height: 1px; }
     input[name*="date"] + .input-group-addon, input[name="createdon"] + .input-group-addon, input[name="editedon"] + .input-group-addon, input[name="menuindex"] + .input-group-addon { float: left; width: auto }
     form#mutate input[name="menuindex"] { flex-basis: 0; flex-grow: 1; padding: 0.46153846em .5em; max-width: 100%; text-align: inherit }
     .form-control-lg, .input-group-lg > .form-control, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .btn, input.form-control-lg, .btn-group-lg > .btn, .btn-lg, .input-group-addon.form-control-lg, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .input-group-addon.btn, .input-group-lg > .input-group-btn > select.btn:not([size]):not([multiple]), .input-group-lg > select.form-control:not([size]):not([multiple]), .input-group-lg > select.input-group-addon:not([size]):not([multiple]), select.form-control-lg:not([size]):not([multiple]), .input-group-lg > .form-control + a { height: 2.5625rem }
