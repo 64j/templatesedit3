@@ -191,6 +191,14 @@ class templatesedit
             $this->doc['template'] = getDefaultTemplate();
         }
 
+        $this->doc['template_alias'] = '';
+        if ($this->doc['template']) {
+            $tpl = $this->evo->db->getRow($this->evo->db->select('*', $this->evo->getFullTableName('site_templates'), 'id = ' . (int)$this->doc['template']));
+            if (!empty($tpl['templatealias'])) {
+                $this->doc['template_alias'] = $tpl['templatealias'];
+            }
+        }
+
         return $this->doc['template'];
     }
 
@@ -210,7 +218,9 @@ class templatesedit
         if ($json) {
             $this->config = json_decode(file_get_contents($json), true);
         } else {
-            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
+            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php')) {
+                $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php';
+            } elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
                 $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template'] . '.php';
             } else {
                 $this->config = require_once $this->basePath . 'configs/template__default.php';
