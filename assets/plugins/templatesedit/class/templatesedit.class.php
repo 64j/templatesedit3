@@ -209,7 +209,12 @@ class templatesedit
         if ($json) {
             $this->config = json_decode(file_get_contents($json), true);
         } else {
-            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
+            $docTemplate = $this->evo->db->getRow($this->evo->db->select('*',$this->evo->getFullTableName('site_templates'),'id = '.intval($this->doc['template'])));
+
+            if(isset($docTemplate['templatealias']) && file_exists($this->basePath . 'configs/template__' . $docTemplate['templatealias'] . '.php')){
+                $this->config = require_once $this->basePath . 'configs/template__' . $docTemplate['templatealias'] . '.php';
+            }
+            elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
                 $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template'] . '.php';
             } else {
                 $this->config = require_once $this->basePath . 'configs/template__default.php';
