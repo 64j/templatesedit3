@@ -88,7 +88,7 @@
 </div>
 <textarea name="templatesedit_builder_data" id="templatesedit_builder_data" rows="15" style="display: none"><?= $data['config'] ?></textarea>
 <script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/Sortable.min.js"></script>
-<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/TemplatesEditBuilder.js?v=3.1.5"></script>
+<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/TemplatesEditBuilder.js?v=3.1.6"></script>
 <script>
   new TemplatesEditBuilder(document.getElementById('builder'), {
     dataEl: document.getElementById('templatesedit_builder_data'),
