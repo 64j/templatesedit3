@@ -194,6 +194,12 @@ var TemplatesEditBuilder = function(el, config) {
       if (target.classList.contains('b-btn-empty')) {
         self.onDelete(target);
       }
+      if (target.id === 'builder_import') {
+        self.import(document.getElementById('builder_file'));
+      }
+      if (target.id === 'builder_export') {
+        self.export();
+      }
     });
 
     this.el.addEventListener('click', function(e) {
@@ -570,89 +576,86 @@ var TemplatesEditBuilder = function(el, config) {
       content: settings
     });
 
-    if (name !== 'weblink') {
-      settings = '';
-      if (fieldType === 'field') {
-        settings += this.tpl(this.templates.setting, {
-          title: 'Default value',
-          content: this.tpl(this.templates.input, {
-            name: 'default',
-            value: this.escapeHtml(data['default'])
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Type',
-          content: this.tpl(this.templates.select, {
-            name: 'type',
-            options: (function(a) {
-              var optgroup, options;
-              optgroup = a.tpl(a.templates.selectOption, {
-                value: '',
-                title: 'default'
-              });
-              for (var g in a.data_types) {
-                if (a.data_types.hasOwnProperty(g)) {
-                  options = '';
-                  for (var o in a.data_types[g]) {
-                    if (a.data_types[g].hasOwnProperty(o)) {
-                      options += a.tpl(a.templates.selectOption, {
-                        title: a.data_types[g][o],
-                        value: o,
-                        selected: o === data['type'] ? 'selected' : ''
-                      });
-                    }
+    settings = '';
+    if (fieldType === 'field') {
+      settings += this.tpl(this.templates.setting, {
+        title: 'Default value',
+        content: this.tpl(this.templates.input, {
+          name: 'default',
+          value: this.escapeHtml(data['default'])
+        })
+      });
+      settings += this.tpl(this.templates.setting, {
+        title: 'Type',
+        content: this.tpl(this.templates.select, {
+          name: 'type',
+          options: (function(a) {
+            var optgroup, options;
+            optgroup = a.tpl(a.templates.selectOption, {
+              value: '',
+              title: 'default'
+            });
+            for (var g in a.data_types) {
+              if (a.data_types.hasOwnProperty(g)) {
+                options = '';
+                for (var o in a.data_types[g]) {
+                  if (a.data_types[g].hasOwnProperty(o)) {
+                    options += a.tpl(a.templates.selectOption, {
+                      title: a.data_types[g][o],
+                      value: o,
+                      selected: o === data['type'] ? 'selected' : ''
+                    });
                   }
-                  optgroup += a.tpl(a.templates.selectOptgroup, {
-                    label: g,
-                    options: options
-                  });
                 }
+                optgroup += a.tpl(a.templates.selectOptgroup, {
+                  label: g,
+                  options: options
+                });
               }
-              return optgroup;
-            })(this)
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Rows',
-          class: _t ? '' : 'b-hidden',
-          content: this.tpl(this.templates.input, {
-            name: 'rows',
-            value: _t ? data['rows'] : ''
-          })
-        });
-        settings += this.tpl(this.templates.setting, {
-          title: 'Possible values',
-          content: this.tpl(this.templates.textarea, {
-            name: 'elements',
-            value: data['elements'],
-            rows: 2
-          })
-        });
-      }
-      settings += this.tpl(this.templates.setting, {
-        title: 'Pattern',
-        content: this.tpl(this.templates.input, {
-          name: 'pattern',
-          value: data['pattern']
+            }
+            return optgroup;
+          })(this)
         })
       });
       settings += this.tpl(this.templates.setting, {
-        title: 'Choices (tags)',
+        title: 'Rows',
+        class: _t ? '' : 'b-hidden',
         content: this.tpl(this.templates.input, {
-          name: 'choices',
-          value: data['choices'],
-          placeholder: 'delimiter'
+          name: 'rows',
+          value: _t ? data['rows'] : ''
         })
       });
-      settingsTabs += this.tpl(this.templates.settingsContent, {
-        content: settings
+      settings += this.tpl(this.templates.setting, {
+        title: 'Possible values',
+        content: this.tpl(this.templates.textarea, {
+          name: 'elements',
+          value: data['elements'],
+          rows: 2
+        })
       });
     }
+    settings += this.tpl(this.templates.setting, {
+      title: 'Pattern',
+      content: this.tpl(this.templates.input, {
+        name: 'pattern',
+        value: data['pattern']
+      })
+    });
+    settings += this.tpl(this.templates.setting, {
+      title: 'Choices (tags)',
+      content: this.tpl(this.templates.input, {
+        name: 'choices',
+        value: data['choices'],
+        placeholder: 'delimiter'
+      })
+    });
+    settingsTabs += this.tpl(this.templates.settingsContent, {
+      content: settings
+    });
 
     settingsBlock = this.tpl(this.templates.settings, {
       name: name,
-      content: settingsTabs,
-      classBtnMore: name === 'weblink' ? 'b-hidden' : ''
+      content: settingsTabs
     }, true);
 
     settingsBlock.addEventListener('change', function(e) {
@@ -743,17 +746,24 @@ var TemplatesEditBuilder = function(el, config) {
   };
 
   TemplatesEdit.prototype.delItem = function(el) {
+    var name = el.getAttribute('data-name');
     if (el.classList.contains('b-category')) {
-      this.elUnusedCategories.appendChild(el);
+      if (!this.elUnusedCategories.querySelectorAll('[data-name="' + name + '"]').length) {
+        this.elUnusedCategories.appendChild(el);
+      }
       this.elUnusedTvars.querySelectorAll('[data-category="' + el.getAttribute('data-id') + '"]:not(.b-add)').forEach(function(el) {
         el.style.display = 'block';
       });
     } else {
       el.classList.remove('b-required-checked');
       if (el.getAttribute('data-type') === 'tv') {
-        this.elUnusedTvars.appendChild(el);
+        if (!this.elUnusedTvars.querySelectorAll('[data-name="' + name + '"]').length) {
+          this.elUnusedTvars.appendChild(el);
+        }
       } else {
-        this.elUnusedFields.appendChild(el);
+        if (!this.elUnusedFields.querySelectorAll('[data-name="' + name + '"]').length) {
+          this.elUnusedFields.appendChild(el);
+        }
       }
     }
   };
@@ -987,6 +997,33 @@ var TemplatesEditBuilder = function(el, config) {
       required: data['required'] ? 'checked' : '',
       settings: this.escapeHtml(JSON.stringify(data))
     });
+  };
+
+  TemplatesEdit.prototype.import = function(el) {
+    if (typeof el.files !== 'undefined') {
+      var self = this, file = el.files[0], reader = new FileReader();
+      if (file && ~file.name.indexOf('.json')) {
+        reader.onload = function() {
+          self.dataEl.value = reader.result;
+          self.init();
+          self.initDraggable();
+        };
+        reader.readAsText(file);
+      }
+    }
+  };
+
+  TemplatesEdit.prototype.export = function() {
+    this.build();
+    var blob = new Blob([this.dataEl.value]);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL.call(this, blob, {
+      type: 'text/json;charset=utf-8;'
+    });
+    a.download = 'template.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   TemplatesEdit.prototype.tpl = function(template, data, isDom, cleanKeys) {

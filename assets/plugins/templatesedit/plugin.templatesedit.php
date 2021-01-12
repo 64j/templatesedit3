@@ -40,6 +40,6 @@ if ($e->name == 'OnTempFormSave') {
 if ($e->name == 'OnTempFormDelete') {
     if (file_exists(MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php')) {
         require_once MODX_BASE_PATH . 'assets/plugins/templatesedit/class/templateseditbuilder.class.php';
-        (new templateseditbuilder())->deleteTemplate();
+        (new templateseditbuilder())->deleteTemplate($id);
     }
 }

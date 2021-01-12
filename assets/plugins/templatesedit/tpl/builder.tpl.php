@@ -66,6 +66,20 @@
             <div class="b-items b-unused-categories sectionBody">
                 <?= $this->getUnusedCategories() ?>
             </div>
+            <div class="b-items-header sectionHeader"><?= $this->lang['import_export'] ?></div>
+            <div class="b-items b-unused-categories sectionBody">
+                <div class="p-1">
+                    <input type="file" id="builder_file">
+                </div>
+                <div class="row m-0">
+                    <div class="col p-0">
+                        <span id="builder_import" class="btn btn-sm btn-secondary d-block rounded-0"><?= $this->lang['import.btn'] ?></span>
+                    </div>
+                    <div class="col p-0">
+                        <span id="builder_export" class="btn btn-sm btn-default d-block rounded-0"><?= $this->lang['export.btn'] ?></span>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col">
             <div id="builder" class="b-content"></div>
@@ -74,13 +88,13 @@
 </div>
 <textarea name="templatesedit_builder_data" id="templatesedit_builder_data" rows="15" style="display: none"><?= $data['config'] ?></textarea>
 <script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/Sortable.min.js"></script>
-<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/TemplatesEditBuilder.js"></script>
+<script src="<?= MODX_BASE_URL ?>assets/plugins/templatesedit/js/TemplatesEditBuilder.js?v=3.1.6"></script>
 <script>
   new TemplatesEditBuilder(document.getElementById('builder'), {
     dataEl: document.getElementById('templatesedit_builder_data'),
     data_fields: <?= $data['data_fields'] ?>,
     data_tvars: <?= $data['data_tvars'] ?>,
     data_categories: <?= $data['data_categories'] ?>,
-    data_types: <?= $data['data_types'] ?>,
+    data_types: <?= $data['data_types'] ?>
   });
 </script>

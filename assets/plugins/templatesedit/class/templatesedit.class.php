@@ -35,6 +35,7 @@ class templatesedit
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
         $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map('trim', explode(',', $this->params['excludeTvCategory'])) : [];
+        $this->params['showTvName'] = isset($this->params['showTvName']) && $this->params['showTvName'] == 'yes';
         // default
         $this->params['default.tab'] = false;
         $this->params['role'] = $_SESSION['mgrRole'];
@@ -190,6 +191,14 @@ class templatesedit
             $this->doc['template'] = getDefaultTemplate();
         }
 
+        $this->doc['template_alias'] = '';
+        if ($this->doc['template']) {
+            $tpl = $this->evo->db->getRow($this->evo->db->select('*', $this->evo->getFullTableName('site_templates'), 'id = ' . (int)$this->doc['template']));
+            if (!empty($tpl['templatealias'])) {
+                $this->doc['template_alias'] = $tpl['templatealias'];
+            }
+        }
+
         return $this->doc['template'];
     }
 
@@ -209,7 +218,9 @@ class templatesedit
         if ($json) {
             $this->config = json_decode(file_get_contents($json), true);
         } else {
-            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
+            if (file_exists($this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php')) {
+                $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php';
+            } elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
                 $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template'] . '.php';
             } else {
                 $this->config = require_once $this->basePath . 'configs/template__default.php';
@@ -231,16 +242,17 @@ class templatesedit
         }
 
         $sql = $this->evo->db->select('
-        DISTINCT tv.*, IF(tvc.value!="",tvc.value,tv.default_text) as value, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
+        DISTINCT tv.*, tvc.value, tv.default_text, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
         INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid="' . $this->doc['id'] . '"
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid="' . $this->doc['template'] . '" AND (1="' . $_SESSION['mgrRole'] . '" OR ISNULL(tva.documentgroup)' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\'' . $this->doc['id'] . '\'
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid=\'' . $this->doc['template'] . '\' AND (1=\'' . $_SESSION['mgrRole'] . '\' OR 1 = CASE WHEN tva.documentgroup IS NULL THEN 1 ELSE 0 END' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
 
-        if ($this->evo->db->getRecordCount($sql)) {
-            while ($row = $this->evo->db->getRow($sql)) {
-                $this->categories[$row['category']][$row['name']] = $row;
-                $this->tvars[$row['name']] = $row;
+        while ($row = $this->evo->db->getRow($sql)) {
+            if ($row['value'] == '') {
+                $row['value'] = $row['default_text'];
             }
+            $this->categories[$row['category']][$row['name']] = $row;
+            $this->tvars[$row['name']] = $row;
         }
 
         $categories = $this->categories;
@@ -442,6 +454,7 @@ class templatesedit
         $rightClass = '';
         $labelFor = $key;
         $isTv = false;
+        $name = $key;
 
         $data['id'] = isset($data['id']) ? $data['id'] : $key;
         $data['name'] = isset($data['name']) ? $data['name'] : $key;
@@ -454,11 +467,16 @@ class templatesedit
         $data['elements'] = isset($data['elements']) ? $data['elements'] : '';
 
         if (isset($this->default_fields[$key])) {
-            if (isset($data['type']) && $key != 'weblink') {
+            if (isset($data['type'])) {
                 $rowClass .= ' form-row-' . $data['type'];
                 $data['default'] = isset($data['default']) ? $data['default'] : '';
-                $data['value'] = isset($this->doc[$key]) ? $this->doc[$key] : $data['default'];
-                $field = renderFormElement($data['type'], $key, $data['default'], $data['elements'], $data['value'], '', $data);
+                if ($key == 'weblink') {
+                    $name = 'ta';
+                    $data['value'] = isset($this->doc['content']) ? $this->doc['content'] : $data['default'];
+                } else {
+                    $data['value'] = isset($this->doc[$key]) ? $this->doc[$key] : $data['default'];
+                }
+                $field = renderFormElement($data['type'], $name, $data['default'], $data['elements'], $data['value'], '', $data);
                 $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
@@ -609,7 +627,7 @@ class templatesedit
                         break;
 
                     case 'template':
-                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=1', 'c.category, t.templatename ASC');
+                        $rs = $this->evo->db->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=\'1\'', 'c.category, t.templatename ASC');
                         $optgroup = [];
                         while ($row = $this->evo->db->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
@@ -666,7 +684,7 @@ class templatesedit
                         break;
 
                     case 'type':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
+                        if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby'] || $this->evo->hasPermission('change_resourcetype')) {
                             $field .= $this->form('select', [
                                 'name' => 'type',
                                 'value' => $this->doc['type'],
@@ -803,6 +821,9 @@ class templatesedit
             $data['reverse'] = !empty($data['reverse']) ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
 
             if (trim($data['title'])) {
+                if ($isTv && $this->params['showTvName']) {
+                    $data['title'] .= '<br><small class="protectedNode">[*' . $data['name'] . '*]</small>';
+                }
                 $title = '<label for="' . $labelFor . '" class="warning" data-key="' . $key . '">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
                 if ($data['position'] == 'c') {
                     $leftClass .= ' col-xs-12 col-12';
@@ -1029,12 +1050,14 @@ class templatesedit
         ORDER BY value ASC
         ');
 
-        if ($this->evo->db->getRecordCount($rs)) {
+        $rs = $this->evo->db->makeArray($rs);
+
+        if (count($rs)) {
             $out .= '<div class="choicesList" data-target="tv' . $id . '" data-separator="' . $separator . '">';
             $separator = trim(htmlspecialchars_decode($separator));
             $value = trim($value, $separator);
             $list = [];
-            while ($row = $this->evo->db->getRow($rs)) {
+            foreach ($rs as $row) {
                 $list = array_merge($list, array_map('trim', explode($separator, $row['value'])));
             }
             $list = array_unique($list);
@@ -1066,11 +1089,17 @@ class templatesedit
                     foreach ($custom_fields as $k => $v) {
                         if (!empty($v['save'])) {
                             if (isset($_REQUEST[$k])) {
-                                $v = $_REQUEST[$k];
-                                if (is_array($v)) {
-                                    $v = implode('||', $v);
+                                if (!empty($v['prepareSave'])) {
+                                    $v = $this->prepare($v['prepareSave'], $_REQUEST[$k]);
+                                } else {
+                                    $v = $_REQUEST[$k];
                                 }
-                                $data[$k] = $this->evo->db->escape($v);
+                                if (!is_null($v)) {
+                                    if (is_array($v)) {
+                                        $v = implode('||', $v);
+                                    }
+                                    $data[$k] = $this->evo->db->escape($v);
+                                }
                             } else {
                                 $data[$k] = isset($v['default']) ? $v['default'] : '';
                             }
@@ -1093,6 +1122,30 @@ class templatesedit
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * @param string $name
+     * @param array $data
+     * @return array|mixed|string
+     */
+    protected function prepare($name = 'prepare', $data = [])
+    {
+        if (!empty($name)) {
+            $params = [
+                'data' => $data,
+                'modx' => $this->evo,
+                '_MF' => $this
+            ];
+
+            if ((is_object($name)) || is_callable($name)) {
+                $data = call_user_func_array($name, $params);
+            } else {
+                $data = $this->evo->runSnippet($name, $params);
+            }
+        }
+
+        return $data;
     }
 
     protected function dd($str = '', $exit = false)
