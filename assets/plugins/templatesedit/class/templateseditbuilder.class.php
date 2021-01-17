@@ -332,7 +332,7 @@ class templateseditbuilder
             $this->params['config_is_default'] = $this->params['check_default_config'] == $this->params['id'];
         }
 
-        if (file_exists($this->params['config_default'][$this->params['templatesedit_builder_role']])) {
+        if (!empty($this->params['config_default'][$this->params['templatesedit_builder_role']]) && file_exists($this->params['config_default'][$this->params['templatesedit_builder_role']])) {
             $file = $this->params['config_default'][$this->params['templatesedit_builder_role']];
         }
 
