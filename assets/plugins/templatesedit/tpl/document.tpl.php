@@ -32,6 +32,9 @@
     .select-which-editor { float: right; position: relative; z-index: 9; margin: 0 0 .25rem }
     .mce-tinymce, .mce-top-part::before { -webkit-box-shadow: none !important; box-shadow: none !important; }
     textarea:not([class]) { display: block }
+    @media (max-width: 767.98px) {
+        .form-row .col-title { width: 100% }
+    }
 </style>
 <script>
   function renderTvImageCheck(a)
