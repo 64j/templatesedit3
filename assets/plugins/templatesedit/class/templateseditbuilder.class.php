@@ -162,6 +162,7 @@ class templateseditbuilder
         foreach ($items as $k => $v) {
             $out .= $this->view('b_field', [
                 'name' => $k,
+                'type' => 'field',
                 'title' => $v['title']
             ]);
         }
@@ -181,10 +182,11 @@ class templateseditbuilder
         foreach ($items as $k => $v) {
             $out .= $this->view('b_field', [
                 'name' => $k,
+                'type' => 'tv',
                 'title' => $v['caption'],
                 'category' => $v['category'],
                 'rowClass' => isset($this->tvars[$k]) ? ' b-add' : '',
-                'attr' => isset($this->tvars[$k]) || isset($this->categories[$v['category']]) ? ' style="display: none"' : ''
+                'attr' => isset($this->tvars[$k]) || isset($this->categories[$v['category']]) ? ' hidden' : ''
             ]);
         }
 

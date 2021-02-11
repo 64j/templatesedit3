@@ -752,12 +752,12 @@ var TemplatesEditBuilder = function(el, config) {
         this.elUnusedCategories.appendChild(el);
       }
       this.elUnusedTvars.querySelectorAll('[data-category="' + el.getAttribute('data-id') + '"]:not(.b-add)').forEach(function(el) {
-        el.style.display = 'block';
+        el.hidden = false;
       });
     } else {
       el.classList.remove('b-required-checked');
       if (el.getAttribute('data-type') === 'tv') {
-        if (!this.elUnusedTvars.querySelectorAll('[data-name="' + name + '"]').length) {
+        if (!this.elUnusedTvars.querySelectorAll('[data-name="' + name + '"]:not([hidden])').length) {
           this.elUnusedTvars.appendChild(el);
         }
       } else {
@@ -823,7 +823,7 @@ var TemplatesEditBuilder = function(el, config) {
               }
               if (id) {
                 self.elUnusedTvars.querySelectorAll('[data-category="' + id + '"]').forEach(function(el) {
-                  el.style.display = 'none';
+                  el.hidden = true;
                 });
               }
               e.item.parentNode.removeChild(e.item);
@@ -975,18 +975,21 @@ var TemplatesEditBuilder = function(el, config) {
   };
 
   TemplatesEdit.prototype.renderField = function(data, name) {
-    var title, help;
+    var title, help, category;
     if (this.data_fields[name]) {
       title = this.data_fields[name]['title'];
       help = this.data_fields[name]['help'];
+      category = '';
     }
     if (this.data_tvars[name]) {
       title = this.data_tvars[name]['title'];
       help = this.data_tvars[name]['help'];
+      category = this.data_tvars[name]['category'];
     }
     return this.tpl(this.templates.field, {
       name: this.escapeHtml(name),
       type: this.data_tvars[name] ? 'tv' : 'field',
+      category: category,
       title: this.escapeHtml(data['title'] && data['title'] !== title ? data['title'] : title),
       help: this.escapeHtml(data['help'] && data['help'] !== help ? data['help'] : help),
       default: {
