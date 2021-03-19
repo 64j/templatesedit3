@@ -329,6 +329,10 @@ class templateseditbuilder
             }
         }
 
+        if (!empty($_GET['d']) && file_exists($this->basePath . 'configs/template__' . $_GET['d'] . '__1.json')) {
+            $this->params['id'] = $_GET['d'];
+        }
+
         if (!empty($this->params['config_default']['default'])) {
             $file = $this->params['config_default']['default'];
             $this->params['config_is_default'] = $this->params['check_default_config'] == $this->params['id'];
