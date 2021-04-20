@@ -30,6 +30,7 @@
     .choicesList i { float: left; padding: .15rem .35rem; margin: 0 .35rem .35rem 0; min-width: 1rem; text-align: center; font: normal .75rem/normal sans-serif; line-height: 1; background-color: rgba(130, 130, 130, 0.2); border-radius: .35rem; cursor: pointer }
     .choicesList i.selected { color: #fff; background-color: #1976d2 }
     .select-which-editor { float: right; position: relative; z-index: 9; margin: 0 0 .25rem }
+    .select-which-editor ~ div { width: 100%; }
     .mce-tinymce, .mce-top-part::before { -webkit-box-shadow: none !important; box-shadow: none !important; }
     textarea:not([class]) { display: block }
     @media (max-width: 767.98px) {
