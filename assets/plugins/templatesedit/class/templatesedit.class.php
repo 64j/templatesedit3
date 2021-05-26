@@ -905,7 +905,7 @@ class templatesedit
                         'class' => 'select-which-editor',
                         'content' => $this->form('select', [
                             'name' => 'which_editor',
-                            'value' => $this->evo->config['which_editor'],
+                            'value' => $this->evo->getConfig('which_editor'),
                             'options' => $options,
                             'class' => 'form-control form-control-sm',
                             'onchange' => 'changeRTE();'
