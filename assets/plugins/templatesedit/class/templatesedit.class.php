@@ -152,7 +152,7 @@ class templatesedit
             $this->doc['type'] = 'reference';
         }
 
-        if ((isset($this->doc['published']) && $this->doc['published'] == 1) || (!isset($this->doc['published']) && $this->evo->config['publish_default'] == 1)) {
+        if ((isset($this->doc['published']) && $this->doc['published'] == 1) || (!isset($this->doc['published']) && $this->evo->getConfig('publish_default') == 1)) {
             $this->doc['published'] = 1;
         }
 
@@ -160,11 +160,11 @@ class templatesedit
             $this->doc['alias_visible'] = 1;
         }
 
-        if ((isset($this->doc['searchable']) && $this->doc['searchable'] == 1) || (!isset($this->doc['searchable']) && $this->evo->config['search_default'] == 1)) {
+        if ((isset($this->doc['searchable']) && $this->doc['searchable'] == 1) || (!isset($this->doc['searchable']) && $this->evo->getConfig('search_default') == 1)) {
             $this->doc['searchable'] = 1;
         }
 
-        if ((isset($this->doc['cacheable']) && $this->doc['cacheable'] == 1) || (!isset($this->doc['cacheable']) && $this->evo->config['cache_default'] == 1)) {
+        if ((isset($this->doc['cacheable']) && $this->doc['cacheable'] == 1) || (!isset($this->doc['cacheable']) && $this->evo->getConfig('cache_default') == 1)) {
             $this->doc['cacheable'] = 1;
         }
 
@@ -318,9 +318,9 @@ class templatesedit
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.inc.php';
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
 
-        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->config['use_editor'] == 1 && $this->doc['type'] == 'document') {
-            $this->richtexteditorIds[$this->evo->config['which_editor']][] = 'ta';
-            $this->richtexteditorOptions[$this->evo->config['which_editor']]['ta'] = '';
+        if (($this->doc['richtext'] == 1 || $this->evo->manager->action == 4) && $this->evo->getConfig('use_editor') == 1 && $this->doc['type'] == 'document') {
+            $this->richtexteditorIds[$this->evo->getConfig('which_editor')][] = 'ta';
+            $this->richtexteditorOptions[$this->evo->getConfig('which_editor')]['ta'] = '';
         }
 
         foreach ($this->config as $tabName => &$tab) {
@@ -513,9 +513,9 @@ class templatesedit
 
                 if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
                     $tvOptions = $this->evo->parseProperties($data['elements']);
-                    $editor = $this->evo->config['which_editor'];
+                    $editor = $this->evo->getConfig('which_editor');
                     if (!empty($tvOptions)) {
-                        $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $this->evo->config['which_editor'];
+                        $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $this->evo->getConfig('which_editor');
                     };
                     $this->richtexteditorIds[$editor][] = $key;
                     $this->richtexteditorOptions[$editor][$key] = $tvOptions;
@@ -561,7 +561,7 @@ class templatesedit
                             'name' => $key,
                             'value' => ((isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->evo->toDateFormat($this->doc[$key])),
                             'class' => $data['class'],
-                            'placeholder' => $this->evo->config['datetime_format'] . ' HH:MM:SS',
+                            'placeholder' => $this->evo->getConfig('datetime_format') . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
                             'icon.title' => $_lang['remove_date']
                         ]);
@@ -647,7 +647,7 @@ class templatesedit
 
                     case 'parent':
                         $parentlookup = false;
-                        $parentname = $this->evo->config['site_name'];
+                        $parentname = $this->evo->getConfig('site_name');
                         if (!empty($_REQUEST['id']) && !empty($this->doc['parent'])) {
                             $parentlookup = $this->doc['parent'];
                         } elseif (!empty($_REQUEST['pid'])) {
@@ -705,7 +705,7 @@ class templatesedit
 
                     case 'contentType':
                         if ($_SESSION['mgrRole'] == 1 || $this->evo->manager->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
-                            $custom_contenttype = isset($this->evo->config['custom_contenttype']) ? $this->evo->config['custom_contenttype'] : 'text/html,text/plain,text/xml';
+                            $custom_contenttype = $this->evo->getConfig('custom_contenttype') ? $this->evo->getConfig('custom_contenttype') : 'text/html,text/plain,text/xml';
                             $options = explode(',', $custom_contenttype);
                             $field .= $this->form('select', [
                                 'name' => 'contentType',
@@ -791,9 +791,9 @@ class templatesedit
 
             if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
                 $tvOptions = $this->evo->parseProperties($data['elements']);
-                $editor = $this->evo->config['which_editor'];
+                $editor = $this->evo->getConfig('which_editor');
                 if (!empty($tvOptions)) {
-                    $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $this->evo->config['which_editor'];
+                    $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $this->evo->getConfig('which_editor');
                 };
                 $this->richtexteditorIds[$editor][] = 'tv' . $data['id'];
                 $this->richtexteditorOptions[$editor]['tv' . $data['id']] = $tvOptions;
@@ -868,7 +868,7 @@ class templatesedit
                 $field .= $this->form('thumb', [
                     'name' => $isTv ? 'tv' . $data['id'] : $key,
                     'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '') : ($value ? MODX_SITE_URL . $value : ''),
-                    'width' => $this->evo->config['thumbWidth']
+                    'width' => $this->evo->getConfig('thumbWidth')
                 ]);
             }
 
