@@ -228,7 +228,7 @@ class templateseditbuilder
         $items = array_diff_key($this->defaultFields, $this->fields);
 
         uksort($items, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($items as $k => $v) {
@@ -251,7 +251,7 @@ class templateseditbuilder
         $items = $this->defaultTvars;
 
         uksort($items, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($items as $k => $v) {
@@ -294,7 +294,7 @@ class templateseditbuilder
         }
 
         uksort($categories, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($categories as $k => $v) {
@@ -705,10 +705,10 @@ class templateseditbuilder
     }
 
     /**
-     * @param string $str
+     * @param $str
      * @param false $exit
      */
-    protected function dd(string $str = '', bool $exit = false)
+    protected function dd($str = null, bool $exit = false)
     {
         print '<pre>';
         print_r($str);
