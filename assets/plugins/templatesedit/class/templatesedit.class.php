@@ -1261,18 +1261,4 @@ class templatesedit
 
         return $data;
     }
-
-    /**
-     * @param string $str
-     * @param false $exit
-     */
-    protected function dd(string $str = '', bool $exit = false)
-    {
-        print '<pre>';
-        print_r($str);
-        print '</pre>';
-        if ($exit) {
-            exit;
-        }
-    }
 }

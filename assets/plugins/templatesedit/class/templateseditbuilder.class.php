@@ -228,7 +228,7 @@ class templateseditbuilder
         $items = array_diff_key($this->defaultFields, $this->fields);
 
         uksort($items, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($items as $k => $v) {
@@ -251,7 +251,7 @@ class templateseditbuilder
         $items = $this->defaultTvars;
 
         uksort($items, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($items as $k => $v) {
@@ -294,7 +294,7 @@ class templateseditbuilder
         }
 
         uksort($categories, function ($a, $b) {
-            return strcasecmp($a, $b);
+            return strcasecmp((string) $a, (string) $b);
         });
 
         foreach ($categories as $k => $v) {
@@ -702,19 +702,5 @@ class templateseditbuilder
     protected function json_encode(?array $array = null): string
     {
         return is_array($array) ? json_encode($array, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE) : '';
-    }
-
-    /**
-     * @param string $str
-     * @param false $exit
-     */
-    protected function dd(string $str = '', bool $exit = false)
-    {
-        print '<pre>';
-        print_r($str);
-        print '</pre>';
-        if ($exit) {
-            exit;
-        }
     }
 }
