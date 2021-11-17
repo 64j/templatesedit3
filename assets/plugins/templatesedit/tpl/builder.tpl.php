@@ -4,7 +4,7 @@
     <div class="row b-header align-items-center">
         <div class="col-auto"><?= $this->lang['role'] ?></div>
         <div class="col-auto">
-            <?= $this->getSelectRole() ?>
+            <?= $this->renderSelectRole() ?>
         </div>
         <div class="col text-right">
             <?php
@@ -56,15 +56,15 @@
         <div class="col-auto b-fields-wrap">
             <div class="b-items-header sectionHeader"><?= $this->lang['fields'] ?></div>
             <div class="b-items b-unused-fields sectionBody">
-                <?= $this->getUnusedFields() ?>
+                <?= $this->renderUnusedFields() ?>
             </div>
             <div class="b-items-header sectionHeader"><?= $this->lang['tmplvars'] ?></div>
             <div class="b-items b-unused-tvars sectionBody">
-                <?= $this->getUnusedTvars() ?>
+                <?= $this->renderUnusedTvars() ?>
             </div>
             <div class="b-items-header sectionHeader"><?= $this->lang['categories'] ?></div>
             <div class="b-items b-unused-categories sectionBody">
-                <?= $this->getUnusedCategories() ?>
+                <?= $this->renderUnusedCategories() ?>
             </div>
             <div class="b-items-header sectionHeader"><?= $this->lang['import_export'] ?></div>
             <div class="b-items b-unused-categories sectionBody">
