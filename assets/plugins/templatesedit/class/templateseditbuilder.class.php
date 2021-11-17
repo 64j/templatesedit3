@@ -703,18 +703,4 @@ class templateseditbuilder
     {
         return is_array($array) ? json_encode($array, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE) : '';
     }
-
-    /**
-     * @param $str
-     * @param false $exit
-     */
-    protected function dd($str = null, bool $exit = false)
-    {
-        print '<pre>';
-        print_r($str);
-        print '</pre>';
-        if ($exit) {
-            exit;
-        }
-    }
 }
