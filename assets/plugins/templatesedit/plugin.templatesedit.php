@@ -3,41 +3,40 @@ if (!defined('MODX_BASE_PATH')) {
     die('HACK???');
 }
 
+spl_autoload_register(function ($class) {
+    if (file_exists($class = __DIR__ . '/class/' . $class . '.class.php')) {
+        require_once $class;
+    }
+});
+
 $e = evolutionCMS()->event;
-$templateEditClass = __DIR__ . '/class/templatesedit.class.php';
-$templateEditBuilderClass = __DIR__ . '/class/templateseditbuilder.class.php';
 
-if ($e->name == 'OnDocFormTemplateRender') {
-    global $content;
-    require_once $templateEditClass;
-    $e->addOutput(templatesedit::getInstance($content)
-        ->renderTemplate());
-}
+switch ($e->name) {
+    case 'OnDocFormTemplateRender':
+        global $content;
+        $e->addOutput(templatesedit::getInstance($content)
+            ->renderTemplate());
+        break;
 
-if ($e->name == 'OnDocFormRender') {
-    global $content;
-    require_once $templateEditClass;
-    $e->addOutput(templatesedit::getInstance($content)
-        ->renderAfterTemplate());
-}
+    case 'OnDocFormRender':
+        global $content;
+        $e->addOutput(templatesedit::getInstance($content)
+            ->renderAfterTemplate());
+        break;
 
-if ($e->name == 'OnDocFormSave') {
-    global $content;
-    require_once $templateEditClass;
-    (new templatesedit())->OnDocFormSave((int) $id, (string) $mode);
-}
+    case 'OnDocFormSave':
+        (new templatesedit())->OnDocFormSave((int) $id, (string) $mode);
+        break;
 
-if ($e->name == 'OnTempFormRender') {
-    require_once $templateEditBuilderClass;
-    $e->addOutput((new templateseditbuilder())->renderTemplate());
-}
+    case 'OnTempFormRender':
+        $e->addOutput((new templateseditbuilder())->renderTemplate());
+        break;
 
-if ($e->name == 'OnTempFormSave') {
-    require_once $templateEditBuilderClass;
-    (new templateseditbuilder())->saveTemplate();
-}
+    case 'OnTempFormSave':
+        (new templateseditbuilder())->saveTemplate();
+        break;
 
-if ($e->name == 'OnTempFormDelete') {
-    require_once $templateEditBuilderClass;
-    (new templateseditbuilder())->deleteTemplate((int) $id);
+    case 'OnTempFormDelete':
+        (new templateseditbuilder())->deleteTemplate((int) $id);
+        break;
 }
