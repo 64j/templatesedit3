@@ -405,7 +405,7 @@ class templatesedit
             $this->richtexteditorOptions[$this->evo->getConfig('which_editor')]['ta'] = '';
         }
 
-        foreach ($this->config as $tabName => &$tab) {
+        foreach ($this->config as $tabName => $tab) {
             if ($tab['title'] && $tabName != '#Static') {
                 $tabContent = $this->renderTab($tab);
                 if ($tabContent) {
@@ -620,7 +620,7 @@ class templatesedit
                     $editor = $this->evo->getConfig('which_editor');
                     if (!empty($tvOptions)) {
                         $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
-                    };
+                    }
                     $this->richtexteditorIds[$editor][] = $key;
                     $this->richtexteditorOptions[$editor][$key] = $tvOptions;
                 }
@@ -724,7 +724,7 @@ class templatesedit
                             ]);
                             $field .= $this->form('input', [
                                 'name' => 'ta',
-                                'value' => !empty($this->doc['content']) ? stripslashes($this->doc['content']) : 'http://',
+                                'value' => !empty($this->doc['content']) ? stripslashes($this->doc['content']) : 'https://',
                                 'class' => $data['class']
                             ]);
                         }
@@ -898,7 +898,7 @@ class templatesedit
                 $editor = $this->evo->getConfig('which_editor');
                 if (!empty($tvOptions)) {
                     $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
-                };
+                }
                 $this->richtexteditorIds[$editor][] = 'tv' . $data['id'];
                 $this->richtexteditorOptions[$editor]['tv' . $data['id']] = $tvOptions;
             }
@@ -1214,7 +1214,7 @@ class templatesedit
                         if (!empty($v['save'])) {
                             if (isset($_REQUEST[$k])) {
                                 if (!empty($v['prepareSave'])) {
-                                    $v = $this->prepare($v['prepareSave'], $_REQUEST[$k]);
+                                    $v = $this->prepare($v['prepareSave'], $_REQUEST[$k], $mode);
                                 } else {
                                     $v = $_REQUEST[$k];
                                 }
@@ -1241,15 +1241,17 @@ class templatesedit
     /**
      * @param string $name
      * @param array $data
+     * @param string|null $mode
      * @return array|false|mixed|string
      */
-    protected function prepare(string $name = 'prepare', array $data = [])
+    protected function prepare(string $name = 'prepare', array $data = [], string $mode = null)
     {
         if (!empty($name)) {
             $params = [
                 'data' => $data,
                 'modx' => $this->evo,
-                '_MF' => $this
+                '_TE' => $this,
+                'mode' => $mode
             ];
 
             if ((is_object($name)) || is_callable($name)) {
