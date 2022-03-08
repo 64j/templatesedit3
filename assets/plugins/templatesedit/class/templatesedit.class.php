@@ -246,11 +246,7 @@ class templatesedit
 
         $this->doc['syncsite'] = 1;
 
-        $this->defaultFields = require_once $this->basePath . 'configs/fields.php';
-
-        if (file_exists($this->basePath . 'configs/custom_fields.php')) {
-            $this->defaultFields += require_once $this->basePath . 'configs/custom_fields.php';
-        }
+        $this->defaultFields = $this->getDefaultFields();
     }
 
     /**
@@ -273,6 +269,30 @@ class templatesedit
         }
 
         return (int) $this->doc['template'];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getDefaultFields(): array
+    {
+        $this->defaultFields = require_once $this->basePath . 'configs/fields.php';
+
+        if (version_compare($this->evo->getConfig('settings_version'), '3.1.0') >= 0) {
+            $position = array_search('donthit', array_keys($this->defaultFields));
+            $fieldsBefore = array_slice($this->defaultFields, 0, $position);
+            $fieldsAfter = array_slice($this->defaultFields, $position + 1);
+            $addedFields = [
+                'hide_from_tree' => $this->defaultFields['donthit']
+            ];
+            $this->defaultFields = $fieldsBefore + $addedFields + $fieldsAfter;
+        }
+
+        if (file_exists($this->basePath . 'configs/custom_fields.php')) {
+            $this->defaultFields += require_once $this->basePath . 'configs/custom_fields.php';
+        }
+
+        return $this->defaultFields;
     }
 
     /**
@@ -629,6 +649,7 @@ class templatesedit
                     case 'published':
                     case 'richtext':
                     case 'donthit':
+                    case 'hide_from_tree':
                     case 'searchable':
                     case 'cacheable':
                     case 'syncsite':
@@ -638,7 +659,7 @@ class templatesedit
                         $rowClass .= ' form-row-checkbox';
                         $labelFor .= 'check';
                         $value = empty($this->doc[$key]) ? 0 : 1;
-                        if ($key == 'donthit' || $key == 'hidemenu') {
+                        if ($key == 'donthit' || $key == 'hide_from_tree' || $key == 'hidemenu') {
                             $checked = !$value ? 'checked' : '';
                         } else {
                             $checked = $value ? 'checked' : '';

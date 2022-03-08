@@ -316,6 +316,16 @@ class templateseditbuilder
     {
         $this->defaultFields = require_once $this->basePath . 'configs/fields.php';
 
+        if (version_compare($this->evo->getConfig('settings_version'), '3.1.0') >= 0) {
+            $position = array_search('donthit', array_keys($this->defaultFields));
+            $fieldsBefore = array_slice($this->defaultFields, 0, $position);
+            $fieldsAfter = array_slice($this->defaultFields, $position + 1);
+            $addedFields = [
+                'hide_from_tree' => $this->defaultFields['donthit']
+            ];
+            $this->defaultFields = $fieldsBefore + $addedFields + $fieldsAfter;
+        }
+
         if (file_exists($this->basePath . 'configs/custom_fields.php')) {
             $this->defaultFields += require_once $this->basePath . 'configs/custom_fields.php';
         }
