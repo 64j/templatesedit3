@@ -1,1 +1,1 @@
-<<?= (isset($data['tag']) ? $data['tag'] : 'div') ?><?= (isset($data['id']) ? ' id="' . $data['id'] . '"' : '') ?> class="<?= (isset($data['class']) ? $data['class'] : '') ?>" <?= (isset($data['attr']) ? $data['attr'] : '') ?>><?= (isset($data['content']) ? $data['content'] : '') ?></<?= (isset($data['tag']) ? $data['tag'] : 'div') ?>>
+<<?= $data['tag'] ?? 'div' ?> id="<?= $data['id'] ?? '' ?>" class="<?= $data['class'] ?? '' ?>" <?= $data['attr'] ?? '' ?>><?= $data['content'] ?? '' ?></<?= $data['tag'] ?? 'div' ?>>
