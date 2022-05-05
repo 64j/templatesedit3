@@ -1009,7 +1009,7 @@ class templatesedit
 
             // show choices
             if (isset($data['choices']) && $data['choices'] != '') {
-                $field .= $this->showChoices($data['id'], $data['value'], $data['choices']);
+                $field .= $this->showChoices((int) $data['id'], $data['value'], $data['choices']);
             }
 
             // show select richtext
