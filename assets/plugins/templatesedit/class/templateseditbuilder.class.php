@@ -258,7 +258,7 @@ class templateseditbuilder
             $out .= $this->view('b_field', [
                 'name' => $k,
                 'type' => 'tv',
-                'title' => $v['caption'],
+                'title' => $v['title'],
                 'category' => $v['category'],
                 'rowClass' => isset($this->tvars[$k]) ? ' b-add' : '',
                 'attr' => isset($this->tvars[$k]) || isset($this->categories[$v['category']]) ? ' hidden' : ''
