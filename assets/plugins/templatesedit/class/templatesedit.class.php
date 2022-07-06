@@ -378,7 +378,7 @@ class templatesedit
                             }
                         }
                         if (substr($fieldsId, 0, 9) == 'category:') {
-                            list($category, $categoryId) = explode(':', $fieldsId);
+                            list(, $categoryId) = explode(':', $fieldsId);
                             unset($categories[$categoryId]);
                             if (empty($this->categories[$categoryId])) {
                                 unset($this->config[$tabId][$colId][$fieldsId]);
@@ -491,7 +491,7 @@ class templatesedit
     {
         $settings = [];
         $title = '';
-        list($type, $id, $col) = explode(':', $key);
+        list(, , $col) = explode(':', $key);
 
         if (isset($data['settings'])) {
             $settings = $data['settings'];
@@ -547,7 +547,7 @@ class templatesedit
                         if (!isset($field['help'])) {
                             $field['help'] = $this->defaultFields[$fieldName]['help'];
                         }
-                        array_push($this->addedFields, $fieldName);
+                        $this->addedFields[] = $fieldName;
                     }
                     $render_field = $this->renderField($fieldName, $field, $settings);
                     if ($render_field) {

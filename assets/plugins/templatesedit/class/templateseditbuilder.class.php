@@ -161,9 +161,9 @@ class templateseditbuilder
      */
     protected function fillData(): void
     {
-        foreach ($this->config as $tabId => &$tab) {
+        foreach ($this->config as &$tab) {
             if (is_array($tab)) {
-                foreach ($tab as $colId => &$col) {
+                foreach ($tab as &$col) {
                     if (is_array($col)) {
                         foreach ($col as $fieldsId => &$fields) {
                             list($type, $id) = explode(':', $fieldsId . '::');
