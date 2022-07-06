@@ -929,7 +929,7 @@ class templatesedit
                 if ($data['type'] == 'date') {
                     $field = str_replace('class="', 'class="form-control ', $field);
                 } else {
-                    $field = str_replace(['name="', 'type="button"'], ['class="form-control" name="', 'class="form-control" type="button"'], $field);
+                    $field = str_replace(['name="', 'type="button"', 'size="1"'], ['class="form-control" name="', 'class="form-control" type="button"', ''], $field);
                 }
 
                 // show required
