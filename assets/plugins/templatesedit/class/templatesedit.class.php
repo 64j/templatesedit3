@@ -378,7 +378,7 @@ class templatesedit
                             }
                         }
                         if (substr($fieldsId, 0, 9) == 'category:') {
-                            list($category, $categoryId) = explode(':', $fieldsId);
+                            list(, $categoryId) = explode(':', $fieldsId);
                             unset($categories[$categoryId]);
                             if (empty($this->categories[$categoryId])) {
                                 unset($this->config[$tabId][$colId][$fieldsId]);
@@ -491,7 +491,7 @@ class templatesedit
     {
         $settings = [];
         $title = '';
-        list($type, $id, $col) = explode(':', $key);
+        list(, , $col) = explode(':', $key);
 
         if (isset($data['settings'])) {
             $settings = $data['settings'];
@@ -547,7 +547,7 @@ class templatesedit
                         if (!isset($field['help'])) {
                             $field['help'] = $this->defaultFields[$fieldName]['help'];
                         }
-                        array_push($this->addedFields, $fieldName);
+                        $this->addedFields[] = $fieldName;
                     }
                     $render_field = $this->renderField($fieldName, $field, $settings);
                     if ($render_field) {
@@ -929,7 +929,7 @@ class templatesedit
                 if ($data['type'] == 'date') {
                     $field = str_replace('class="', 'class="form-control ', $field);
                 } else {
-                    $field = str_replace(['name="', 'type="button"'], ['class="form-control" name="', 'class="form-control" type="button"'], $field);
+                    $field = str_replace(['name="', 'type="button"', 'size="1"'], ['class="form-control" name="', 'class="form-control" type="button"', ''], $field);
                 }
 
                 // show required
@@ -1009,7 +1009,7 @@ class templatesedit
 
             // show choices
             if (isset($data['choices']) && $data['choices'] != '') {
-                $field .= $this->showChoices($data['id'], $data['value'], $data['choices']);
+                $field .= $this->showChoices((int) $data['id'], $data['value'], $data['choices']);
             }
 
             // show select richtext
@@ -1260,12 +1260,12 @@ class templatesedit
     }
 
     /**
-     * @param string $name
-     * @param array $data
+     * @param $name
+     * @param $data
      * @param string|null $mode
      * @return array|false|mixed|string
      */
-    protected function prepare(string $name = 'prepare', array $data = [], string $mode = null)
+    protected function prepare($name, $data, string $mode = null)
     {
         if (!empty($name)) {
             $params = [

@@ -161,9 +161,9 @@ class templateseditbuilder
      */
     protected function fillData(): void
     {
-        foreach ($this->config as $tabId => &$tab) {
+        foreach ($this->config as &$tab) {
             if (is_array($tab)) {
-                foreach ($tab as $colId => &$col) {
+                foreach ($tab as &$col) {
                     if (is_array($col)) {
                         foreach ($col as $fieldsId => &$fields) {
                             list($type, $id) = explode(':', $fieldsId . '::');
@@ -258,7 +258,7 @@ class templateseditbuilder
             $out .= $this->view('b_field', [
                 'name' => $k,
                 'type' => 'tv',
-                'title' => $v['caption'],
+                'title' => $v['title'],
                 'category' => $v['category'],
                 'rowClass' => isset($this->tvars[$k]) ? ' b-add' : '',
                 'attr' => isset($this->tvars[$k]) || isset($this->categories[$v['category']]) ? ' hidden' : ''
