@@ -1260,12 +1260,12 @@ class templatesedit
     }
 
     /**
-     * @param string $name
-     * @param array $data
+     * @param $name
+     * @param $data
      * @param string|null $mode
      * @return array|false|mixed|string
      */
-    protected function prepare(string $name = 'prepare', array $data = [], string $mode = null)
+    protected function prepare($name, $data, string $mode = null)
     {
         if (!empty($name)) {
             $params = [
