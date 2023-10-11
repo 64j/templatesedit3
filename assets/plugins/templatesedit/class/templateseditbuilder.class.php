@@ -197,9 +197,9 @@ class templateseditbuilder
     public function renderSelectRole(): string
     {
         $users = [];
-        $sql = $this->evo->db->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
+        $sql = $this->evo->getDatabase()->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
 
-        while ($row = $this->evo->db->getRow($sql)) {
+        while ($row = $this->evo->getDatabase()->getRow($sql)) {
             $pf = '&nbsp;&nbsp;&nbsp; ';
             if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') || (!is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') && !empty($this->params['config_default'][$row['id']]))) {
                 $pf = '★ ';
@@ -341,7 +341,7 @@ class templateseditbuilder
         global $_lang;
 
         if ($this->params['id']) {
-            $sql = $this->evo->db->query('
+            $sql = $this->evo->getDatabase()->query('
                 SELECT tv.id, tv.name, tv.caption AS title, tv.description, tv.category
                 FROM ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tt
                 LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvars') . ' AS tv ON tv.id=tt.tmplvarid
@@ -351,7 +351,7 @@ class templateseditbuilder
 
             $this->defaultCategories = [];
 
-            while ($row = $this->evo->db->getRow($sql)) {
+            while ($row = $this->evo->getDatabase()->getRow($sql)) {
                 $this->defaultTvars[$row['name']] = $row;
                 $this->defaultCategories[$row['category']] = $row['category'];
             }
@@ -373,13 +373,13 @@ class templateseditbuilder
     protected function getDefaultCategories(): array
     {
         if (!empty($this->defaultCategories)) {
-            $sql = $this->evo->db->query('
+            $sql = $this->evo->getDatabase()->query('
                 SELECT *, category AS title
                 FROM ' . $this->evo->getFullTableName('categories') . '
                 ORDER BY category
             ');
 
-            while ($row = $this->evo->db->getRow($sql)) {
+            while ($row = $this->evo->getDatabase()->getRow($sql)) {
                 $this->defaultCategories[$row['id']] = $row;
             }
         }
