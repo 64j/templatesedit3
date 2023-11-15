@@ -681,10 +681,11 @@ class templatesedit
                     case 'unpub_date':
                     case 'createdon':
                     case 'editedon':
+                        $value = (isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->doc[$key];
                         $rowClass .= ' form-row-date';
                         $field .= $this->form('date', [
                             'name' => $key,
-                            'value' => ((isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->evo->toDateFormat($this->doc[$key])),
+                            'value' => $value ? $this->evo->toDateFormat(!is_numeric($value) ? strtotime($value) : $value) : '',
                             'class' => $data['class'],
                             'placeholder' => $this->evo->getConfig('datetime_format') . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
