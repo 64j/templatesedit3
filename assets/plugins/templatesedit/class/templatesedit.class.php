@@ -684,7 +684,7 @@ class templatesedit
                         $rowClass .= ' form-row-date';
                         $field .= $this->form('date', [
                             'name' => $key,
-                            'value' => ((isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->evo->toDateFormat($this->doc[$key])),
+                            'value' => ((isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->evo->toDateFormat(strtotime((string)$this->doc[$key]))),
                             'class' => $data['class'],
                             'placeholder' => $this->evo->getConfig('datetime_format') . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
