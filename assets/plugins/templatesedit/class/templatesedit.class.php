@@ -420,11 +420,6 @@ class templatesedit
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.inc.php';
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
 
-        if (($this->doc['richtext'] == 1 || $this->evo->getManagerApi()->action == 4) && $this->evo->getConfig('use_editor') == 1 && $this->doc['type'] == 'document') {
-            $this->richtexteditorIds[$this->evo->getConfig('which_editor')][] = 'ta';
-            $this->richtexteditorOptions[$this->evo->getConfig('which_editor')]['ta'] = '';
-        }
-
         foreach ($this->config as $tabName => $tab) {
             if ($tab['title'] && $tabName != '#Static') {
                 $tabContent = $this->renderTab($tab);
@@ -594,8 +589,11 @@ class templatesedit
             if (isset($data['type'])) {
                 $rowClass .= ' form-row-' . $data['type'];
                 $data['default'] = $data['default'] ?? '';
-                if ($key == 'weblink') {
-                    $name = 'ta';
+                if (in_array($key, ['weblink', 'content'])) {
+                    if (($key == 'weblink' && $this->doc['type'] != 'reference') || ($key == 'content' && $this->doc['type'] == 'reference')) {
+                        return '';
+                    }
+                    $name = $key = 'ta';
                     $data['value'] = $this->doc['content'] ?? $data['default'];
                 } else {
                     $data['value'] = $this->doc[$key] ?? $data['default'];
@@ -633,16 +631,6 @@ class templatesedit
 
                     default:
                         break;
-                }
-
-                if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
-                    $tvOptions = $this->evo->parseProperties($data['elements']);
-                    $editor = $this->evo->getConfig('which_editor');
-                    if (!empty($tvOptions)) {
-                        $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
-                    }
-                    $this->richtexteditorIds[$editor][] = $key;
-                    $this->richtexteditorOptions[$editor][$key] = $tvOptions;
                 }
             } else {
                 switch ($key) {
@@ -733,6 +721,11 @@ class templatesedit
                                 'class' => $data['class'],
                                 'rows' => empty($data['rows']) ? 20 : $data['rows']
                             ]);
+
+                            if ($this->doc['richtext']) {
+                                $data['type'] = 'richtext';
+                                $key = 'ta';
+                            }
                         }
                         break;
 
@@ -915,15 +908,7 @@ class templatesedit
 
             $field = renderFormElement($data['type'], $data['id'], $data['default_text'], $data['elements'], $data['value'], '', $data);
 
-            if ($data['type'] == 'richtext' || $data['type'] == 'htmlarea') {
-                $tvOptions = $this->evo->parseProperties($data['elements']);
-                $editor = $this->evo->getConfig('which_editor');
-                if (!empty($tvOptions)) {
-                    $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
-                }
-                $this->richtexteditorIds[$editor][] = 'tv' . $data['id'];
-                $this->richtexteditorOptions[$editor]['tv' . $data['id']] = $tvOptions;
-            }
+            $key = 'tv' . $data['id'];
 
             if (stripos($data['type'], 'custom_tv') === false) {
                 // add class form-control
@@ -938,6 +923,16 @@ class templatesedit
                     $field = str_replace(' name="', $data['required'] . ' name="', $field);
                 }
             }
+        }
+
+        if ($this->evo->getConfig('use_editor') == 1 && ($data['type'] == 'richtext' || $data['type'] == 'htmlarea')) {
+            $tvOptions = $this->evo->parseProperties($data['elements']);
+            $editor = $this->evo->getConfig('which_editor');
+            if (!empty($tvOptions)) {
+                $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
+            }
+            $this->richtexteditorIds[$editor][] = $key;
+            $this->richtexteditorOptions[$editor][$key] = $tvOptions;
         }
 
         if ($field) {
