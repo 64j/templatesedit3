@@ -420,11 +420,6 @@ class templatesedit
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.inc.php';
         require_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
 
-//        if (($this->doc['richtext'] == 1 || $this->evo->getManagerApi()->action == 4) && $this->evo->getConfig('use_editor') == 1 && $this->doc['type'] == 'document') {
-//            $this->richtexteditorIds[$this->evo->getConfig('which_editor')][] = 'ta';
-//            $this->richtexteditorOptions[$this->evo->getConfig('which_editor')]['ta'] = '';
-//        }
-
         foreach ($this->config as $tabName => $tab) {
             if ($tab['title'] && $tabName != '#Static') {
                 $tabContent = $this->renderTab($tab);
