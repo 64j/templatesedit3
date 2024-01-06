@@ -386,9 +386,13 @@ class templatesedit
                         }
                     }
                     if (empty($this->config[$tabId][$colId])) {
-                        unset($this->config[$tabId]);
+                        unset($this->config[$tabId][$colId]);
                     }
                 }
+            }
+
+            if (empty($this->config[$tabId])) {
+                unset($this->config[$tabId]);
             }
         }
 
@@ -584,6 +588,7 @@ class templatesedit
         $data['pattern'] = isset($data['pattern']) ? ' pattern="' . $data['pattern'] . '"' : '';
         $data['required'] = !empty($data['required']) ? ' required' : '';
         $data['elements'] = $data['elements'] ?? '';
+        $data['type'] = $data['type'] ?? null;
 
         if (isset($this->defaultFields[$key])) {
             if (isset($data['type'])) {
