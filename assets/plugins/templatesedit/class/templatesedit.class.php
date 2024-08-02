@@ -147,7 +147,7 @@ class templatesedit
                 $out .= $this->form('input', [
                     'type' => 'hidden',
                     'name' => $fieldName,
-                    'value' => isset($this->doc[$fieldName]) ? $this->evo->getPhpCompat()->htmlspecialchars($this->doc[$fieldName]) : ''
+                    'value' => isset($this->doc[$fieldName]) ? htmlspecialchars($this->doc[$fieldName], ENT_COMPAT) : ''
                 ]);
             }
             $out .= '<!-- end hidden fields -->';
@@ -712,7 +712,7 @@ class templatesedit
                     case 'introtext':
                         $field .= $this->form('textarea', [
                             'name' => 'introtext',
-                            'value' => $this->evo->getPhpCompat()->htmlspecialchars(stripslashes($this->doc['introtext'])),
+                            'value' => htmlspecialchars(stripslashes($this->doc['introtext']), ENT_COMPAT),
                             'class' => $data['class'],
                             'rows' => empty($data['rows']) ? 3 : $data['rows']
                         ]);
@@ -722,7 +722,7 @@ class templatesedit
                         if ($this->doc['type'] != 'reference') {
                             $field .= $this->form('textarea', [
                                 'name' => 'ta',
-                                'value' => $this->evo->getPhpCompat()->htmlspecialchars(stripslashes($this->doc['content'])),
+                                'value' => htmlspecialchars(stripslashes($this->doc['content']), ENT_COMPAT),
                                 'class' => $data['class'],
                                 'rows' => empty($data['rows']) ? 20 : $data['rows']
                             ]);
@@ -884,7 +884,7 @@ class templatesedit
                     default:
                         $field .= $this->form('input', [
                             'name' => $key,
-                            'value' => $this->evo->getPhpCompat()->htmlspecialchars(stripslashes($this->doc[$key])),
+                            'value' => htmlspecialchars(stripslashes($this->doc[$key]), ENT_COMPAT),
                             'class' => 'form-control ' . $data['class'],
                             'attr' => 'spellcheck="true"' . $data['required'] . $data['pattern']
                         ]);
@@ -1179,10 +1179,10 @@ class templatesedit
      * @param string $separator
      * @return string
      */
-    protected function showChoices(int $id, string $value = '', string $separator = ', '): string
+    protected function showChoices(int $id, string $value = '', $separator = ', '): string
     {
         $out = '';
-        $separator = is_bool($separator) ? ', ' : $this->evo->getPhpCompat()->htmlspecialchars($separator);
+        $separator = is_bool($separator) ? ', ' : htmlspecialchars($separator, ENT_COMPAT);
 
         $rs = $this->evo->getDatabase()
             ->query('
