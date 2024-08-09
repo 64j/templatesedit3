@@ -82,7 +82,10 @@ class templatesedit
         $this->basePath = dirname(__DIR__) . '/';
         $this->params = $this->evo->event->params;
         $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
-        $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map('trim', explode(',', $this->params['excludeTvCategory'])) : [];
+        $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map(
+            'trim',
+            explode(',', $this->params['excludeTvCategory'])
+        ) : [];
         $this->params['showTvName'] = isset($this->params['showTvName']) && $this->params['showTvName'] == 'yes';
         // default
         $this->params['default.tab'] = false;
@@ -92,6 +95,7 @@ class templatesedit
 
     /**
      * @param array $doc
+     *
      * @return static|null
      */
     public static function getInstance(array $doc = []): ?templatesedit
@@ -113,7 +117,7 @@ class templatesedit
         $this->getTemplateVariables();
 
         return $this->view('document', [
-            'content' => $this->renderTabs()
+            'content' => $this->renderTabs(),
         ]);
     }
 
@@ -132,8 +136,8 @@ class templatesedit
                 'class' => 'col p-1',
                 'content' => $this->view('element', [
                     'class' => 'row form-row',
-                    'content' => $tabContent
-                ])
+                    'content' => $tabContent,
+                ]),
             ]);
         }
 
@@ -147,7 +151,10 @@ class templatesedit
                 $out .= $this->form('input', [
                     'type' => 'hidden',
                     'name' => $fieldName,
-                    'value' => isset($this->doc[$fieldName]) ? htmlspecialchars($this->doc[$fieldName], ENT_COMPAT) : ''
+                    'value' => isset($this->doc[$fieldName]) ? htmlspecialchars(
+                        (string) $this->doc[$fieldName],
+                        ENT_COMPAT
+                    ) : '',
                 ]);
             }
             $out .= '<!-- end hidden fields -->';
@@ -222,7 +229,9 @@ class templatesedit
             $this->doc['type'] = 'reference';
         }
 
-        if ((isset($this->doc['published']) && $this->doc['published'] == 1) || (!isset($this->doc['published']) && $this->evo->getConfig('publish_default') == 1)) {
+        if ((isset($this->doc['published']) && $this->doc['published'] == 1) ||
+            (!isset($this->doc['published']) && $this->evo->getConfig('publish_default') == 1)
+        ) {
             $this->doc['published'] = 1;
         }
 
@@ -230,11 +239,15 @@ class templatesedit
             $this->doc['alias_visible'] = 1;
         }
 
-        if ((isset($this->doc['searchable']) && $this->doc['searchable'] == 1) || (!isset($this->doc['searchable']) && $this->evo->getConfig('search_default') == 1)) {
+        if ((isset($this->doc['searchable']) && $this->doc['searchable'] == 1) ||
+            (!isset($this->doc['searchable']) && $this->evo->getConfig('search_default') == 1)
+        ) {
             $this->doc['searchable'] = 1;
         }
 
-        if ((isset($this->doc['cacheable']) && $this->doc['cacheable'] == 1) || (!isset($this->doc['cacheable']) && $this->evo->getConfig('cache_default') == 1)) {
+        if ((isset($this->doc['cacheable']) && $this->doc['cacheable'] == 1) ||
+            (!isset($this->doc['cacheable']) && $this->evo->getConfig('cache_default') == 1)
+        ) {
             $this->doc['cacheable'] = 1;
         }
 
@@ -262,7 +275,13 @@ class templatesedit
 
         $this->doc['template_alias'] = '';
         if ($this->doc['template']) {
-            $tpl = $this->evo->getDatabase()->getRow($this->evo->getDatabase()->select('*', $this->evo->getFullTableName('site_templates'), 'id = ' . (int) $this->doc['template']));
+            $tpl = $this->evo->getDatabase()->getRow(
+                $this->evo->getDatabase()->select(
+                    '*',
+                    $this->evo->getFullTableName('site_templates'),
+                    'id = ' . (int) $this->doc['template']
+                )
+            );
             if (!empty($tpl['templatealias'])) {
                 $this->doc['template_alias'] = $tpl['templatealias'];
             }
@@ -283,7 +302,7 @@ class templatesedit
             $fieldsBefore = array_slice($this->defaultFields, 0, $position);
             $fieldsAfter = array_slice($this->defaultFields, $position + 1);
             $addedFields = [
-                'hide_from_tree' => $this->defaultFields['donthit']
+                'hide_from_tree' => $this->defaultFields['donthit'],
             ];
             $this->defaultFields = $fieldsBefore + $addedFields + $fieldsAfter;
         }
@@ -303,8 +322,12 @@ class templatesedit
         $this->config = [];
         $json = '';
 
-        if (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] . '.json')) {
-            $json = $this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] . '.json';
+        if (file_exists(
+            $this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] . '.json'
+        )
+        ) {
+            $json = $this->basePath . 'configs/template__' . $this->doc['template'] . '__' . $this->params['role'] .
+                '.json';
         } elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '__1.json')) {
             $json = $this->basePath . 'configs/template__' . $this->doc['template'] . '__1.json';
         } elseif ($file = glob($this->basePath . 'configs/template_*_default.json')) {
@@ -315,7 +338,8 @@ class templatesedit
             $this->config = json_decode(file_get_contents($json), true);
         } else {
             if (file_exists($this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php')) {
-                $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php';
+                $this->config =
+                    require_once $this->basePath . 'configs/template__' . $this->doc['template_alias'] . '.php';
             } elseif (file_exists($this->basePath . 'configs/template__' . $this->doc['template'] . '.php')) {
                 $this->config = require_once $this->basePath . 'configs/template__' . $this->doc['template'] . '.php';
             } else {
@@ -340,11 +364,19 @@ class templatesedit
             $docgrp = implode(',', $_SESSION['mgrDocgroups']);
         }
 
-        $sql = $this->evo->getDatabase()->select('
-        DISTINCT tv.*, tvc.value, tv.default_text, tvtpl.rank', $this->evo->getFullTableName('site_tmplvars') . ' AS tv
+        $sql = $this->evo->getDatabase()->select(
+            '
+        DISTINCT tv.*, tvc.value, tv.default_text, tvtpl.rank',
+            $this->evo->getFullTableName('site_tmplvars') . ' AS tv
         INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\'' . $this->doc['id'] . '\'
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id', 'tvtpl.templateid=\'' . $this->doc['template'] . '\' AND (1=\'' . $_SESSION['mgrRole'] . '\' OR 1 = CASE WHEN tva.documentgroup IS NULL THEN 1 ELSE 0 END' . (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')', 'tvtpl.rank, tv.rank, tv.id');
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') .
+            ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\'' . $this->doc['id'] . '\'
+        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id',
+            'tvtpl.templateid=\'' . $this->doc['template'] . '\' AND (1=\'' . $_SESSION['mgrRole'] .
+            '\' OR 1 = CASE WHEN tva.documentgroup IS NULL THEN 1 ELSE 0 END' .
+            (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')',
+            'tvtpl.rank, tv.rank, tv.id'
+        );
 
         while ($row = $this->evo->getDatabase()->getRow($sql)) {
             if ($row['value'] == '') {
@@ -378,7 +410,7 @@ class templatesedit
                             }
                         }
                         if (substr($fieldsId, 0, 9) == 'category:') {
-                            list(, $categoryId) = explode(':', $fieldsId);
+                            [, $categoryId] = explode(':', $fieldsId);
                             unset($categories[$categoryId]);
                             if (empty($this->categories[$categoryId])) {
                                 unset($this->config[$tabId][$colId][$fieldsId]);
@@ -434,8 +466,8 @@ class templatesedit
                         'tabsObject' => 'tpSettings',
                         'content' => $this->view('element', [
                             'class' => 'row form-row',
-                            'content' => $tabContent
-                        ])
+                            'content' => $tabContent,
+                        ]),
                     ]);
                 } else {
                     unset($this->config[$tabName]);
@@ -449,18 +481,19 @@ class templatesedit
     /**
      * @param array $tab
      * @param array $settings
+     *
      * @return string
      */
     protected function renderTab(array $tab, array $settings = []): string
     {
         $out = '';
         foreach ($tab as $k => $fields) {
-            list($type, $id) = explode(':', $k . ':');
+            [$type, $id] = explode(':', $k . ':');
             switch ($type) {
                 case 'category':
                     if (!empty($this->categories[$id])) {
                         $out .= $this->renderTab([
-                            'fields' => $this->categories[$id]
+                            'fields' => $this->categories[$id],
                         ], $settings);
                     }
                     break;
@@ -484,13 +517,14 @@ class templatesedit
     /**
      * @param array $data
      * @param string $key
+     *
      * @return string
      */
     protected function renderCol(array $data = [], string $key = ''): string
     {
         $settings = [];
         $title = '';
-        list(, , $col) = explode(':', $key);
+        [, , $col] = explode(':', $key);
 
         if (isset($data['settings'])) {
             $settings = $data['settings'];
@@ -498,7 +532,7 @@ class templatesedit
             if (isset($settings['title']) && $settings['title'] != '') {
                 $title = $this->view('element', [
                     'class' => 'col-12',
-                    'content' => $settings['title']
+                    'content' => $settings['title'],
                 ]);
             }
 
@@ -507,7 +541,7 @@ class templatesedit
 
         return $this->view('element', [
             'class' => 'row-col col-lg-' . $col . ($col > 3 && $col < 9 ? ' col-md-6 col-12' : ' col-12'),
-            'content' => $title . $this->renderTab($data, $settings)
+            'content' => $title . $this->renderTab($data, $settings),
         ]);
     }
 
@@ -515,6 +549,7 @@ class templatesedit
      * @param array $fields
      * @param string $tabName
      * @param array $settings
+     *
      * @return string
      */
     protected function renderFields(array $fields, string $tabName, array $settings = []): string
@@ -563,6 +598,7 @@ class templatesedit
      * @param string $key
      * @param array $data
      * @param array $settings
+     *
      * @return string
      */
     protected function renderField(string $key, array $data, array $settings = []): string
@@ -583,8 +619,12 @@ class templatesedit
         $data['name'] = $data['name'] ?? $key;
         $data['title'] = $data['title'] ?? '';
         $data['caption'] = $data['caption'] ?? '';
-        $data['help'] = isset($data['help']) && $data['help'] != '' ? '<i class="fa fa-question-circle" data-tooltip="' . stripcslashes($data['help']) . '"></i>' : '';
-        $data['description'] = isset($data['description']) && $data['description'] != '' ? '<span class="comment d-block">' . $data['description'] . '</span>' : '';
+        $data['help'] =
+            isset($data['help']) && $data['help'] != '' ? '<i class="fa fa-question-circle" data-tooltip="' .
+                stripcslashes($data['help']) . '"></i>' : '';
+        $data['description'] =
+            isset($data['description']) && $data['description'] != '' ? '<span class="comment d-block">' .
+                $data['description'] . '</span>' : '';
         $data['pattern'] = isset($data['pattern']) ? ' pattern="' . $data['pattern'] . '"' : '';
         $data['required'] = !empty($data['required']) ? ' required' : '';
         $data['elements'] = $data['elements'] ?? '';
@@ -595,7 +635,9 @@ class templatesedit
                 $rowClass .= ' form-row-' . $data['type'];
                 $data['default'] = $data['default'] ?? '';
                 if (in_array($key, ['weblink', 'content'])) {
-                    if (($key == 'weblink' && $this->doc['type'] != 'reference') || ($key == 'content' && $this->doc['type'] == 'reference')) {
+                    if (($key == 'weblink' && $this->doc['type'] != 'reference') ||
+                        ($key == 'content' && $this->doc['type'] == 'reference')
+                    ) {
                         return '';
                     }
                     $name = $key = 'ta';
@@ -603,14 +645,24 @@ class templatesedit
                 } else {
                     $data['value'] = $this->doc[$key] ?? $data['default'];
                 }
-                $field = renderFormElement($data['type'], $name, $data['default'], $data['elements'], $data['value'], '', $data);
+                $field = renderFormElement(
+                    $data['type'],
+                    $name,
+                    $data['default'],
+                    $data['elements'],
+                    $data['value'],
+                    '',
+                    $data
+                );
                 $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
                 }
                 switch ($data['type']) {
                     case 'date':
-                        $field = str_replace(['DatePicker', 'onclick="', '.elements[\'tv'], ['form-control DatePicker', 'class="form-control" onclick="', '.elements[\''], $field);
+                        $field = str_replace(['DatePicker', 'onclick="', '.elements[\'tv'],
+                            ['form-control DatePicker', 'class="form-control" onclick="', '.elements[\''],
+                            $field);
                         break;
 
                     case 'text':
@@ -627,7 +679,14 @@ class templatesedit
 
                     case 'image':
                     case 'file':
-                        $field = str_replace(['name="', 'type="button"', 'BrowseServer(\'tv', 'BrowseFileServer(\'tv'], ['class="form-control" name="', 'class="form-control" type="button"', 'BrowseServer(\'', 'BrowseFileServer(\''], $field);
+                        $field = str_replace(['name="', 'type="button"', 'BrowseServer(\'tv', 'BrowseFileServer(\'tv'],
+                            [
+                                'class="form-control" name="',
+                                'class="form-control" type="button"',
+                                'BrowseServer(\'',
+                                'BrowseFileServer(\'',
+                            ],
+                            $field);
                         break;
 
                     case 'dropdown':
@@ -661,12 +720,13 @@ class templatesedit
                             'type' => 'checkbox',
                             'name' => $key . 'check',
                             'class' => 'form-checkbox form-control ' . $data['class'],
-                            'attr' => 'onclick="changestate(document.mutate.' . $key . ');" ' . $checked . $data['required']
+                            'attr' => 'onclick="changestate(document.mutate.' . $key . ');" ' . $checked .
+                                $data['required'],
                         ]);
                         $field .= $this->form('input', [
                             'type' => 'hidden',
                             'name' => $key,
-                            'value' => $value
+                            'value' => $value,
                         ]);
                         break;
 
@@ -674,15 +734,18 @@ class templatesedit
                     case 'unpub_date':
                     case 'createdon':
                     case 'editedon':
-                        $value = (isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? '' : $this->doc[$key];
+                        $value = (isset($this->doc[$key]) && $this->doc[$key] == 0) || !isset($this->doc[$key]) ? ''
+                            : $this->doc[$key];
                         $rowClass .= ' form-row-date';
                         $field .= $this->form('date', [
                             'name' => $key,
-                            'value' => $value ? $this->evo->toDateFormat(!is_numeric($value) ? strtotime($value) : $value) : '',
+                            'value' => $value ? $this->evo->toDateFormat(
+                                !is_numeric($value) ? strtotime($value) : $value
+                            ) : '',
                             'class' => $data['class'],
                             'placeholder' => $this->evo->getConfig('datetime_format') . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
-                            'icon.title' => $_lang['remove_date']
+                            'icon.title' => $_lang['remove_date'],
                         ]);
                         break;
 
@@ -695,17 +758,17 @@ class templatesedit
                                         'tag' => 'span',
                                         'class' => 'btn btn-secondary',
                                         'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"',
-                                        'content' => '<i class="fa fa-angle-left"></i>'
+                                        'content' => '<i class="fa fa-angle-left"></i>',
                                     ]) . $this->view('element', [
                                         'tag' => 'span',
                                         'class' => 'btn btn-secondary',
                                         'attr' => 'onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+\'\')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;" style="cursor: pointer;"',
-                                        'content' => '<i class="fa fa-angle-right"></i>'
-                                    ])
+                                        'content' => '<i class="fa fa-angle-right"></i>',
+                                    ]),
                             ]) . $this->form('input', [
                                 'name' => $key,
                                 'value' => $this->doc['menuindex'],
-                                'maxlength' => 6
+                                'maxlength' => 6,
                             ]);
                         break;
 
@@ -714,7 +777,7 @@ class templatesedit
                             'name' => 'introtext',
                             'value' => htmlspecialchars(stripslashes($this->doc['introtext']), ENT_COMPAT),
                             'class' => $data['class'],
-                            'rows' => empty($data['rows']) ? 3 : $data['rows']
+                            'rows' => empty($data['rows']) ? 3 : $data['rows'],
                         ]);
                         break;
 
@@ -724,7 +787,7 @@ class templatesedit
                                 'name' => 'ta',
                                 'value' => htmlspecialchars(stripslashes($this->doc['content']), ENT_COMPAT),
                                 'class' => $data['class'],
-                                'rows' => empty($data['rows']) ? 20 : $data['rows']
+                                'rows' => empty($data['rows']) ? 20 : $data['rows'],
                             ]);
 
                             if ($this->doc['richtext']) {
@@ -740,18 +803,25 @@ class templatesedit
                                 'tag' => 'i',
                                 'id' => 'llock',
                                 'class' => 'fa fa-chain',
-                                'attr' => 'onclick="enableLinkSelection(!allowLinkSelection);"'
+                                'attr' => 'onclick="enableLinkSelection(!allowLinkSelection);"',
                             ]);
                             $field .= $this->form('input', [
                                 'name' => 'ta',
-                                'value' => !empty($this->doc['content']) ? stripslashes($this->doc['content']) : 'https://',
-                                'class' => $data['class']
+                                'value' => !empty($this->doc['content']) ? stripslashes($this->doc['content'])
+                                    : 'https://',
+                                'class' => $data['class'],
                             ]);
                         }
                         break;
 
                     case 'template':
-                        $rs = $this->evo->getDatabase()->select('t.templatename, t.id, c.category', $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' . $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id', 't.selectable=1', 'c.category, t.templatename ASC');
+                        $rs = $this->evo->getDatabase()->select(
+                            't.templatename, t.id, c.category',
+                            $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' .
+                            $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id',
+                            't.selectable=1',
+                            'c.category, t.templatename ASC'
+                        );
                         $optgroup = [];
                         while ($row = $this->evo->getDatabase()->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
@@ -761,11 +831,11 @@ class templatesedit
                             'name' => 'template',
                             'value' => $this->doc['template'],
                             'options' => [
-                                0 => '(blank)'
+                                0 => '(blank)',
                             ],
                             'optgroup' => $optgroup,
                             'class' => $data['class'],
-                            'onchange' => 'templateWarning();'
+                            'onchange' => 'templateWarning();',
                         ]);
                         break;
 
@@ -782,7 +852,11 @@ class templatesedit
                             $this->doc['parent'] = 0;
                         }
                         if ($parentLookup !== false && is_numeric($parentLookup)) {
-                            $rs = $this->evo->getDatabase()->select('pagetitle', $this->evo->getFullTableName('site_content'), 'id=' . $parentLookup);
+                            $rs = $this->evo->getDatabase()->select(
+                                'pagetitle',
+                                $this->evo->getFullTableName('site_content'),
+                                'id=' . $parentLookup
+                            );
                             $parentName = $this->evo->getDatabase()->getValue($rs);
                             if (!$parentName) {
                                 $this->evo->webAlertAndQuit($_lang["error_no_parent"]);
@@ -794,88 +868,99 @@ class templatesedit
                                     'tag' => 'i',
                                     'id' => 'plock',
                                     'class' => 'fa fa-folder-o',
-                                    'attr' => 'onclick="enableParentSelection(!allowParentSelection);"'
+                                    'attr' => 'onclick="enableParentSelection(!allowParentSelection);"',
                                 ]) . $this->view('element', [
                                     'tag' => 'b',
                                     'id' => 'parentName',
-                                    'content' => $this->doc['parent'] . ' (' . $parentName . ')'
+                                    'content' => $this->doc['parent'] . ' (' . $parentName . ')',
                                 ]) . $this->view('input', [
                                     'type' => 'hidden',
                                     'name' => 'parent',
-                                    'value' => $this->doc['parent']
-                                ])
+                                    'value' => $this->doc['parent'],
+                                ]),
                         ]);
                         break;
 
                     case 'type':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby'] || $this->evo->hasPermission('change_resourcetype')) {
+                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                            $_SESSION['mgrInternalKey'] == $this->doc['createdby'] ||
+                            $this->evo->hasPermission('change_resourcetype')
+                        ) {
                             $field .= $this->form('select', [
                                 'name' => 'type',
                                 'value' => $this->doc['type'],
                                 'options' => [
                                     'document' => $_lang["resource_type_webpage"],
-                                    'reference' => $_lang["resource_type_weblink"]
+                                    'reference' => $_lang["resource_type_weblink"],
                                 ],
-                                'class' => $data['class']
+                                'class' => $data['class'],
                             ]);
                         } else {
                             $field .= $this->form('input', [
                                 'type' => 'hidden',
                                 'name' => 'type',
-                                'value' => $this->doc['type'] != 'reference' && $this->evo->getManagerApi()->action != 72 ? 'document' : 'reference'
+                                'value' => $this->doc['type'] != 'reference' &&
+                                $this->evo->getManagerApi()->action != 72 ? 'document' : 'reference',
                             ]);
                         }
                         break;
 
                     case 'contentType':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
-                            $custom_contenttype = $this->evo->getConfig('custom_contenttype') ? $this->evo->getConfig('custom_contenttype') : 'text/html,text/plain,text/xml';
+                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                            $_SESSION['mgrInternalKey'] == $this->doc['createdby']
+                        ) {
+                            $custom_contenttype = $this->evo->getConfig('custom_contenttype') ? $this->evo->getConfig(
+                                'custom_contenttype'
+                            ) : 'text/html,text/plain,text/xml';
                             $options = explode(',', $custom_contenttype);
                             $field .= $this->form('select', [
                                 'name' => 'contentType',
                                 'value' => $this->doc['contentType'] ?? 'text/html',
                                 'options' => array_combine($options, $options),
-                                'class' => $data['class']
+                                'class' => $data['class'],
                             ]);
                         } else {
                             $field .= $this->form('input', [
                                 'type' => 'hidden',
                                 'name' => 'type',
-                                'value' => $this->doc['type'] == 'reference' ? 'text/html' : ($this->doc['contentType'] ?? 'text/html')
+                                'value' => $this->doc['type'] == 'reference' ? 'text/html'
+                                    : ($this->doc['contentType'] ?? 'text/html'),
                             ]);
                             if ($this->doc['type'] == 'reference') {
                                 $field .= $this->form('input', [
                                     'type' => 'hidden',
                                     'name' => 'contentType',
-                                    'value' => 'text/html'
+                                    'value' => 'text/html',
                                 ]);
                             } else {
                                 $field .= $this->form('input', [
                                     'type' => 'hidden',
                                     'name' => 'contentType',
-                                    'value' => $this->doc['contentType'] ?? 'text/html'
+                                    'value' => $this->doc['contentType'] ?? 'text/html',
                                 ]);
                             }
                         }
                         break;
 
                     case 'content_dispo':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 || $_SESSION['mgrInternalKey'] == $this->doc['createdby']) {
+                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                            $_SESSION['mgrInternalKey'] == $this->doc['createdby']
+                        ) {
                             $field .= $this->form('select', [
                                 'name' => 'content_dispo',
                                 'value' => $this->doc['content_dispo'] ?? 0,
                                 'options' => [
                                     0 => $_lang['inline'],
-                                    1 => $_lang['attachment']
+                                    1 => $_lang['attachment'],
                                 ],
-                                'class' => $data['class']
+                                'class' => $data['class'],
                             ]);
                         } else {
                             if ($this->doc['type'] != 'reference') {
                                 $field .= $this->form('input', [
                                     'type' => 'hidden',
                                     'name' => 'content_dispo',
-                                    'value' => $this->doc['content_dispo'] ?? 0
+                                    'value' => $this->doc['content_dispo'] ?? 0,
                                 ]);
                             }
                         }
@@ -886,7 +971,7 @@ class templatesedit
                             'name' => $key,
                             'value' => htmlspecialchars(stripslashes($this->doc[$key]), ENT_COMPAT),
                             'class' => 'form-control ' . $data['class'],
-                            'attr' => 'spellcheck="true"' . $data['required'] . $data['pattern']
+                            'attr' => 'spellcheck="true"' . $data['required'] . $data['pattern'],
                         ]);
                         break;
                 }
@@ -899,7 +984,8 @@ class templatesedit
             if ($data['title'] == '') {
                 $data['title'] = $data['caption'];
                 if (substr($data['value'], 0, 8) == '@INHERIT') {
-                    $data['description'] .= '<div class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</div>';
+                    $data['description'] .= '<div class="comment inherited">(' . $_lang['tmplvars_inherited'] .
+                        ')</div>';
                 }
             }
 
@@ -911,7 +997,15 @@ class templatesedit
                 }
             }
 
-            $field = renderFormElement($data['type'], $data['id'], $data['default_text'], $data['elements'], $data['value'], '', $data);
+            $field = renderFormElement(
+                $data['type'],
+                $data['id'],
+                $data['default_text'],
+                $data['elements'],
+                $data['value'],
+                '',
+                $data
+            );
 
             $key = 'tv' . $data['id'];
 
@@ -920,7 +1014,9 @@ class templatesedit
                 if ($data['type'] == 'date') {
                     $field = str_replace('class="', 'class="form-control ', $field);
                 } else {
-                    $field = str_replace(['name="', 'type="button"', 'size="1"'], ['class="form-control" name="', 'class="form-control" type="button"', ''], $field);
+                    $field = str_replace(['name="', 'type="button"', 'size="1"'],
+                        ['class="form-control" name="', 'class="form-control" type="button"', ''],
+                        $field);
                 }
 
                 // show required
@@ -942,15 +1038,20 @@ class templatesedit
 
         if ($field) {
             $title = '';
-            $data['size'] = !empty($data['size']) ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size'] : '');
-            $data['position'] = !empty($data['position']) ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
-            $data['reverse'] = !empty($data['reverse']) ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
+            $data['size'] = !empty($data['size'])
+                ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size']
+                    : '');
+            $data['position'] = !empty($data['position'])
+                ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
+            $data['reverse'] = !empty($data['reverse'])
+                ? $data['reverse'] : (!empty($settings['reverse']) ? $settings['reverse'] : '');
 
             if (trim($data['title'])) {
                 if ($isTv && $this->params['showTvName']) {
                     $data['title'] .= '<br><small class="protectedNode">[*' . $data['name'] . '*]</small>';
                 }
-                $title = '<label for="' . $labelFor . '" class="warning" data-key="' . $key . '">' . $data['title'] . '</label>' . $data['help'] . $data['description'];
+                $title = '<label for="' . $labelFor . '" class="warning" data-key="' . $key . '">' . $data['title'] .
+                    '</label>' . $data['help'] . $data['description'];
                 if ($data['position'] == 'c') {
                     $leftClass .= ' col-xs-12 col-12';
                     $rightClass .= ' col-xs-12 col-12';
@@ -993,8 +1094,9 @@ class templatesedit
             if (!empty($data['type']) && $data['type'] == 'image' && $this->params['showTvImage']) {
                 $field .= $this->form('thumb', [
                     'name' => $isTv ? 'tv' . $data['id'] : $key,
-                    'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '') : ($value ? MODX_SITE_URL . $value : ''),
-                    'width' => $this->evo->getConfig('thumbWidth')
+                    'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '')
+                        : ($value ? MODX_SITE_URL . $value : ''),
+                    'width' => $this->evo->getConfig('thumbWidth'),
                 ]);
             }
 
@@ -1004,7 +1106,7 @@ class templatesedit
                 $field .= $this->form('datalist', [
                     'id' => $data['id'],
                     'class' => '',
-                    'options' => array_combine($options, $options)
+                    'options' => array_combine($options, $options),
                 ]);
             }
 
@@ -1016,7 +1118,7 @@ class templatesedit
             // show select richtext
             if ($key == 'content') {
                 $options = [
-                    'none' => $_lang['none']
+                    'none' => $_lang['none'],
                 ];
 
                 $evtOut = $this->evo->invokeEvent('OnRichTextEditorRegister');
@@ -1034,26 +1136,26 @@ class templatesedit
                             'value' => $this->evo->getConfig('which_editor'),
                             'options' => $options,
                             'class' => 'form-control form-control-sm',
-                            'onchange' => 'changeRTE();'
-                        ])
+                            'onchange' => 'changeRTE();',
+                        ]),
                     ]) . $field;
             }
 
             if ($title) {
                 $title = $this->view('element', [
                     'class' => trim($leftClass),
-                    'content' => $title
+                    'content' => $title,
                 ]);
             }
 
             $field = $this->view('element', [
                 'class' => trim($rightClass),
-                'content' => $field
+                'content' => $field,
             ]);
 
             $out = $this->view('element', [
                 'class' => 'row form-row' . $rowClass,
-                'content' => $title . $field
+                'content' => $title . $field,
             ]);
         }
 
@@ -1063,6 +1165,7 @@ class templatesedit
     /**
      * @param string $tpl
      * @param array $data
+     *
      * @return string
      */
     protected function form(string $tpl, array $data = []): string
@@ -1123,7 +1226,7 @@ class templatesedit
                 $options .= $this->form('option', [
                     'value' => $k,
                     'title' => $v,
-                    'selected' => $k == $data['value'] ? 'selected' : ''
+                    'selected' => $k == $data['value'] ? 'selected' : '',
                 ]);
             }
         }
@@ -1135,7 +1238,7 @@ class templatesedit
                     $options .= $this->form('option', [
                         'value' => $value,
                         'title' => $title,
-                        'selected' => $value == $data['value'] ? 'selected' : ''
+                        'selected' => $value == $data['value'] ? 'selected' : '',
                     ]);
                 }
                 $options .= '</optgroup>';
@@ -1154,6 +1257,7 @@ class templatesedit
     /**
      * @param string $tpl
      * @param array $data
+     *
      * @return string
      */
     protected function view(string $tpl, array $data = []): string
@@ -1177,6 +1281,7 @@ class templatesedit
      * @param int $id
      * @param string $value
      * @param string $separator
+     *
      * @return string
      */
     protected function showChoices(int $id, string $value = '', $separator = ', '): string
@@ -1265,6 +1370,7 @@ class templatesedit
      * @param $name
      * @param $data
      * @param string|null $mode
+     *
      * @return array|false|mixed|string
      */
     protected function prepare($name, $data, string $mode = null)
@@ -1274,7 +1380,7 @@ class templatesedit
                 'data' => $data,
                 'modx' => $this->evo,
                 '_TE' => $this,
-                'mode' => $mode
+                'mode' => $mode,
             ];
 
             if ((is_object($name)) || is_callable($name)) {
