@@ -160,7 +160,17 @@ class templatesedit
             $out .= '<!-- end hidden fields -->';
         }
 
-        $richtexteditorIds = $this->richtexteditorIds;
+        # fix https://github.com/64j/templatesedit3/issues/60
+        $richtexteditorIds = array_map(
+            function ($item) {
+                if (in_array('ta', $item, true) && count($item) > 1) {
+                    $item = array_unique(array_merge(['ta'], $item));
+                }
+
+                return $item;
+            },
+            $this->richtexteditorIds
+        );
         $richtexteditorOptions = $this->richtexteditorOptions;
 
         return $out;
