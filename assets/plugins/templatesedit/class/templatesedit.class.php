@@ -227,11 +227,11 @@ class templatesedit
             $this->doc['contentType'] = 'text/html';
         }
 
-        if ($this->evo->getManagerApi()->action == 85 || (isset($_REQUEST['isfolder']) && $_REQUEST['isfolder'] == 1)) {
+        if ($this->evo->getManagerApi()->action == 85 || ($_REQUEST['isfolder'] ?? null) == 1) {
             $this->doc['isfolder'] = 1;
         }
 
-        if ($this->evo->getManagerApi()->action == 85 || $this->evo->getManagerApi()->action == 4) {
+        if (in_array($this->evo->getManagerApi()->action, [85, 4])) {
             $this->doc['type'] = 'document';
         }
 
@@ -239,7 +239,7 @@ class templatesedit
             $this->doc['type'] = 'reference';
         }
 
-        if ((isset($this->doc['published']) && $this->doc['published'] == 1) ||
+        if (($this->doc['published'] ?? null) == 1 ||
             (!isset($this->doc['published']) && $this->evo->getConfig('publish_default') == 1)
         ) {
             $this->doc['published'] = 1;
@@ -249,19 +249,19 @@ class templatesedit
             $this->doc['alias_visible'] = 1;
         }
 
-        if ((isset($this->doc['searchable']) && $this->doc['searchable'] == 1) ||
+        if (($this->doc['searchable'] ?? null) == 1 ||
             (!isset($this->doc['searchable']) && $this->evo->getConfig('search_default') == 1)
         ) {
             $this->doc['searchable'] = 1;
         }
 
-        if ((isset($this->doc['cacheable']) && $this->doc['cacheable'] == 1) ||
+        if (($this->doc['cacheable'] ?? null) == 1 ||
             (!isset($this->doc['cacheable']) && $this->evo->getConfig('cache_default') == 1)
         ) {
             $this->doc['cacheable'] = 1;
         }
 
-        if (isset($this->doc['richtext']) && $this->doc['richtext'] == 0 && $this->evo->getManagerApi()->action == 27) {
+        if (($this->doc['richtext'] ?? null) == 0 && $this->evo->getManagerApi()->action == 27) {
             $this->doc['richtext'] = 0;
         } else {
             $this->doc['richtext'] = 1;
@@ -411,7 +411,7 @@ class templatesedit
             foreach ($tab as $colId => $col) {
                 if (is_array($col)) {
                     foreach ($col as $fieldsId => $fields) {
-                        if (substr($fieldsId, 0, 7) == 'fields:') {
+                        if (substr((string) $fieldsId, 0, 7) == 'fields:') {
                             foreach ($fields as $key => $field) {
                                 if (isset($this->tvars[$key])) {
                                     unset($categories[$this->tvars[$key]['category']][$key]);
@@ -419,7 +419,7 @@ class templatesedit
                                 }
                             }
                         }
-                        if (substr($fieldsId, 0, 9) == 'category:') {
+                        if (substr((string) $fieldsId, 0, 9) == 'category:') {
                             [, $categoryId] = explode(':', $fieldsId);
                             unset($categories[$categoryId]);
                             if (empty($this->categories[$categoryId])) {
@@ -993,7 +993,7 @@ class templatesedit
 
             if ($data['title'] == '') {
                 $data['title'] = $data['caption'];
-                if (substr($data['value'], 0, 8) == '@INHERIT') {
+                if (substr((string) $data['value'], 0, 8) == '@INHERIT') {
                     $data['description'] .= '<div class="comment inherited">(' . $_lang['tmplvars_inherited'] .
                         ')</div>';
                 }
@@ -1049,7 +1049,8 @@ class templatesedit
         if ($field) {
             $title = '';
             $data['size'] = !empty($data['size'])
-                ? ' input-group-' . $data['size'] : (!empty($settings['size']) ? ' input-group-' . $settings['size']
+                ? ' input-group-' . $data['size']
+                : (!empty($settings['size']) ? ' input-group-' . $settings['size']
                     : '');
             $data['position'] = !empty($data['position'])
                 ? $data['position'] : (!empty($settings['position']) ? $settings['position'] : '');
@@ -1290,7 +1291,7 @@ class templatesedit
     /**
      * @param int $id
      * @param string $value
-     * @param string $separator
+     * @param string|bool $separator
      *
      * @return string
      */
@@ -1300,13 +1301,15 @@ class templatesedit
         $separator = is_bool($separator) ? ', ' : htmlspecialchars($separator, ENT_COMPAT);
 
         $rs = $this->evo->getDatabase()
-            ->query('
+            ->query(
+                '
             SELECT value 
             FROM ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . '
             WHERE tmplvarid=' . $id . '
             GROUP BY value
             ORDER BY value ASC
-        ');
+        '
+            );
 
         $rs = $this->evo->getDatabase()->makeArray($rs);
 
