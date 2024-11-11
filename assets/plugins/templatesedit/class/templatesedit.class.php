@@ -637,6 +637,7 @@ class templatesedit
                 $data['description'] . '</span>' : '';
         $data['pattern'] = isset($data['pattern']) ? ' pattern="' . $data['pattern'] . '"' : '';
         $data['required'] = !empty($data['required']) ? ' required' : '';
+        $data['readonly'] = !empty($data['readonly']) ? ' readonly' : '';
         $data['elements'] = $data['elements'] ?? '';
         $data['type'] = $data['type'] ?? null;
 
