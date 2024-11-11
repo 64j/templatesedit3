@@ -18,7 +18,8 @@ var TemplatesEditBuilder = function(el, config) {
         required: '',
         rows: '',
         pattern: '',
-        choices: ''
+        choices: '',
+        readonly:'',
       }
     };
     this.el = el;
@@ -518,6 +519,15 @@ var TemplatesEditBuilder = function(el, config) {
         icon: 'fa fa-check-circle'
       })
     });
+     settings += this.tpl(this.templates.setting, {
+      title: 'Readonly',
+      content: this.tpl(this.templates.checkbox, {
+        name: 'readonly',
+        value: 1,
+        checked: data['readonly'] ? 'checked' : '',
+        icon: 'fa fa-check-circle'
+      })
+    });
     settings += this.tpl(this.templates.setting, {
       title: 'Size',
       content: this.tpl(this.templates.radio, {
@@ -680,6 +690,9 @@ var TemplatesEditBuilder = function(el, config) {
           switch (name) {
             case 'required':
               parent.closest('.b-item').classList.toggle('b-required-checked', target.checked);
+              break;
+               case 'readonly':
+              parent.closest('.b-item').classList.toggle('b-readonly-checked', target.checked);
               break;
             case 'type':
               parent.querySelector('[data-name="rows"]').closest('.b-setting').classList.toggle('b-hidden', !_t);
@@ -998,6 +1011,7 @@ var TemplatesEditBuilder = function(el, config) {
         value: this.escapeHtml(data['default'])
       },
       required: data['required'] ? 'checked' : '',
+      readonly: data['readonly'] ? 'checked' : '',
       settings: this.escapeHtml(JSON.stringify(data))
     });
   };
