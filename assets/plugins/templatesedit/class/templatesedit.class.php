@@ -665,7 +665,7 @@ class templatesedit
                     '',
                     $data
                 );
-                $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] . ' name="'], $field);
+                $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] .$data['readonly'] . ' name="'], $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
                 }
@@ -732,7 +732,7 @@ class templatesedit
                             'name' => $key . 'check',
                             'class' => 'form-checkbox form-control ' . $data['class'],
                             'attr' => 'onclick="changestate(document.mutate.' . $key . ');" ' . $checked .
-                                $data['required'],
+                                $data['required'].$data['readonly'],
                         ]);
                         $field .= $this->form('input', [
                             'type' => 'hidden',
@@ -982,7 +982,7 @@ class templatesedit
                             'name' => $key,
                             'value' => htmlspecialchars(stripslashes($this->doc[$key]), ENT_COMPAT),
                             'class' => 'form-control ' . $data['class'],
-                            'attr' => 'spellcheck="true"' . $data['required'] . $data['pattern'],
+                            'attr' => 'spellcheck="true"' . $data['required'].$data['readonly'] . $data['pattern'],
                         ]);
                         break;
                 }
@@ -1033,6 +1033,9 @@ class templatesedit
                 // show required
                 if ($data['required']) {
                     $field = str_replace(' name="', $data['required'] . ' name="', $field);
+                }
+                if ($data['readonly']) {
+                    $field = str_replace(' name="', $data['readonly'] . ' name="', $field);
                 }
             }
         }
@@ -1304,7 +1307,7 @@ class templatesedit
         $rs = $this->evo->getDatabase()
             ->query(
                 '
-            SELECT value 
+            SELECT value
             FROM ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . '
             WHERE tmplvarid=' . $id . '
             GROUP BY value
