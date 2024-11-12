@@ -59,6 +59,7 @@
 .builder .b-items .b-field .b-btn-settings, .builder .b-items .b-field .b-btn-del, .builder .b-items .b-field .b-field-title, .builder .b-items .b-category .b-btn-del { display: none }
 .builder .b-field { position: relative; padding: .25rem .5rem; margin-bottom: .25rem; height: 1.8rem; border: 1px solid }
 .builder .b-field.b-required-checked { border-color: #d9534f !important }
+.builder .b-field.b-readonly-checked { border-color: #638ee7 !important }
 .builder .b-field .b-btn-settings, .builder .b-field .b-btn-del { opacity: .5; transition: .5s opacity }
 .builder .b-field:hover .b-btn-settings, .builder .b-field:hover .b-btn-del { opacity: 1 }
 .builder .b-field:hover, .builder .b-category:hover { background-color: rgba(0, 0, 0, 0.04) }

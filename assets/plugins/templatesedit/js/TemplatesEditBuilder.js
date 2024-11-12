@@ -16,9 +16,10 @@ var TemplatesEditBuilder = function(el, config) {
         position: 'l',
         reverse: '',
         required: '',
+        readonly:'',
         rows: '',
         pattern: '',
-        choices: ''
+        choices: '',
       }
     };
     this.el = el;
@@ -76,7 +77,7 @@ var TemplatesEditBuilder = function(el, config) {
         '    </div>\n' +
         '</div>',
     field: '' +
-        '<div class="col-12 b-field b-item b-draggable {hidden} b-required-{required}" title="{title}" data-name="{name}" data-type="{type}" data-category="{category}" data-settings="{settings}">\n' +
+        '<div class="col-12 b-field b-item b-draggable {hidden} b-required-{required} b-readonly-{readonly}" title="{title}" data-name="{name}" data-type="{type}" data-category="{category}" data-settings="{settings}">\n' +
         '  <div class="row align-items-center">\n' +
         '    <div class="col-auto"><i class="fa fa-bars b-move"></i></div>\n' +
         '    <div class="col b-field-name">{name}</div>\n' +
@@ -518,6 +519,15 @@ var TemplatesEditBuilder = function(el, config) {
         icon: 'fa fa-check-circle'
       })
     });
+     settings += this.tpl(this.templates.setting, {
+      title: 'Readonly',
+      content: this.tpl(this.templates.checkbox, {
+        name: 'readonly',
+        value: 1,
+        checked: data['readonly'] ? 'checked' : '',
+        icon: 'fa fa-check-circle'
+      })
+    });
     settings += this.tpl(this.templates.setting, {
       title: 'Size',
       content: this.tpl(this.templates.radio, {
@@ -681,6 +691,9 @@ var TemplatesEditBuilder = function(el, config) {
             case 'required':
               parent.closest('.b-item').classList.toggle('b-required-checked', target.checked);
               break;
+            case 'readonly':
+              parent.closest('.b-item').classList.toggle('b-readonly-checked', target.checked);
+              break;
             case 'type':
               parent.querySelector('[data-name="rows"]').closest('.b-setting').classList.toggle('b-hidden', !_t);
               break;
@@ -756,6 +769,7 @@ var TemplatesEditBuilder = function(el, config) {
       });
     } else {
       el.classList.remove('b-required-checked');
+      el.classList.remove('b-readonly-checked');
       if (el.getAttribute('data-type') === 'tv') {
         if (!this.elUnusedTvars.querySelectorAll('[data-name="' + name + '"]:not([hidden])').length) {
           this.elUnusedTvars.appendChild(el);
@@ -998,6 +1012,7 @@ var TemplatesEditBuilder = function(el, config) {
         value: this.escapeHtml(data['default'])
       },
       required: data['required'] ? 'checked' : '',
+      readonly: data['readonly'] ? 'checked' : '',
       settings: this.escapeHtml(JSON.stringify(data))
     });
   };
