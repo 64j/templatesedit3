@@ -5,7 +5,7 @@
  * Кастомизация полей при редактировании документов
  *
  * @category    plugin
- * @version     3.1.14
+ * @version     3.1.15
  * @package     evo
  * @internal    @properties &showTvImage=Show TV thumbnail;list;yes,no;no &showTvName=Show TV titles;list;yes,no;no &excludeTvCategory=Exclude TV from categories;text;
  * @internal    @events OnDocFormTemplateRender,OnDocFormRender,OnDocFormSave,OnTempFormRender,OnTempFormSave,OnTempFormDelete
