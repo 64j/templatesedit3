@@ -13,19 +13,14 @@ declare(strict_types=1);
 class templatesedit
 {
     /**
-     * @var templatesedit
+     * @var templatesedit|null
      */
-    private static $instance = null;
-
-    /**
-     * @var DocumentParser
-     */
-    protected $evo;
+    private static ?templatesedit $instance = null;
 
     /**
      * @var array
      */
-    protected $doc;
+    protected array $doc;
 
     /**
      * @var array
@@ -35,42 +30,42 @@ class templatesedit
     /**
      * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * @var string
      */
-    protected $basePath;
+    protected string $basePath;
 
     /**
      * @var array
      */
-    protected $richtexteditorOptions = [];
+    protected array $richtexteditorOptions = [];
 
     /**
      * @var array
      */
-    protected $richtexteditorIds = [];
+    protected array $richtexteditorIds = [];
 
     /**
      * @var array
      */
-    protected $defaultFields = [];
+    protected array $defaultFields = [];
 
     /**
      * @var array
      */
-    protected $addedFields = [];
+    protected array $addedFields = [];
 
     /**
      * @var array
      */
-    protected $categories = [];
+    protected array $categories = [];
 
     /**
      * @var array|null
      */
-    protected $tvars = null;
+    protected ?array $tvars = null;
 
     /**
      * @param array $doc
@@ -78,9 +73,8 @@ class templatesedit
     public function __construct(array $doc = [])
     {
         $this->doc = $doc;
-        $this->evo = evolutionCMS();
         $this->basePath = dirname(__DIR__) . '/';
-        $this->params = $this->evo->event->params;
+        $this->params = evo()->event->params;
         $this->params['showTvImage'] = isset($this->params['showTvImage']) && $this->params['showTvImage'] == 'yes';
         $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map(
             'trim',
@@ -227,20 +221,20 @@ class templatesedit
             $this->doc['contentType'] = 'text/html';
         }
 
-        if ($this->evo->getManagerApi()->action == 85 || ($_REQUEST['isfolder'] ?? null) == 1) {
+        if (evo()->getManagerApi()->action == 85 || ($_REQUEST['isfolder'] ?? null) == 1) {
             $this->doc['isfolder'] = 1;
         }
 
-        if (in_array($this->evo->getManagerApi()->action, [85, 4])) {
+        if (in_array(evo()->getManagerApi()->action, [85, 4])) {
             $this->doc['type'] = 'document';
         }
 
-        if ($this->evo->getManagerApi()->action == 72) {
+        if (evo()->getManagerApi()->action == 72) {
             $this->doc['type'] = 'reference';
         }
 
         if (($this->doc['published'] ?? null) == 1 ||
-            (!isset($this->doc['published']) && $this->evo->getConfig('publish_default') == 1)
+            (!isset($this->doc['published']) && evo()->getConfig('publish_default') == 1)
         ) {
             $this->doc['published'] = 1;
         }
@@ -250,18 +244,18 @@ class templatesedit
         }
 
         if (($this->doc['searchable'] ?? null) == 1 ||
-            (!isset($this->doc['searchable']) && $this->evo->getConfig('search_default') == 1)
+            (!isset($this->doc['searchable']) && evo()->getConfig('search_default') == 1)
         ) {
             $this->doc['searchable'] = 1;
         }
 
         if (($this->doc['cacheable'] ?? null) == 1 ||
-            (!isset($this->doc['cacheable']) && $this->evo->getConfig('cache_default') == 1)
+            (!isset($this->doc['cacheable']) && evo()->getConfig('cache_default') == 1)
         ) {
             $this->doc['cacheable'] = 1;
         }
 
-        if (($this->doc['richtext'] ?? null) == 0 && $this->evo->getManagerApi()->action == 27) {
+        if (($this->doc['richtext'] ?? null) == 0 && evo()->getManagerApi()->action == 27) {
             $this->doc['richtext'] = 0;
         } else {
             $this->doc['richtext'] = 1;
@@ -285,10 +279,10 @@ class templatesedit
 
         $this->doc['template_alias'] = '';
         if ($this->doc['template']) {
-            $tpl = $this->evo->getDatabase()->getRow(
-                $this->evo->getDatabase()->select(
+            $tpl = evo()->getDatabase()->getRow(
+                evo()->getDatabase()->select(
                     '*',
-                    $this->evo->getFullTableName('site_templates'),
+                    evo()->getFullTableName('site_templates'),
                     'id = ' . (int) $this->doc['template']
                 )
             );
@@ -307,7 +301,7 @@ class templatesedit
     {
         $this->defaultFields = require_once $this->basePath . 'configs/fields.php';
 
-        if (version_compare($this->evo->getConfig('settings_version'), '3.1.0') >= 0) {
+        if (version_compare(evo()->getConfig('settings_version'), '3.1.0') >= 0) {
             $position = array_search('donthit', array_keys($this->defaultFields));
             $fieldsBefore = array_slice($this->defaultFields, 0, $position);
             $fieldsAfter = array_slice($this->defaultFields, $position + 1);
@@ -374,21 +368,21 @@ class templatesedit
             $docgrp = implode(',', $_SESSION['mgrDocgroups']);
         }
 
-        $sql = $this->evo->getDatabase()->select(
+        $sql = evo()->getDatabase()->select(
             '
         DISTINCT tv.*, tvc.value, tv.default_text, tvtpl.rank',
-            $this->evo->getFullTableName('site_tmplvars') . ' AS tv
-        INNER JOIN ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') .
+            evo()->getFullTableName('site_tmplvars') . ' AS tv
+        INNER JOIN ' . evo()->getFullTableName('site_tmplvar_templates') . ' AS tvtpl ON tvtpl.tmplvarid = tv.id
+        LEFT JOIN ' . evo()->getFullTableName('site_tmplvar_contentvalues') .
             ' AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=\'' . $this->doc['id'] . '\'
-        LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id',
+        LEFT JOIN ' . evo()->getFullTableName('site_tmplvar_access') . ' AS tva ON tva.tmplvarid=tv.id',
             'tvtpl.templateid=\'' . $this->doc['template'] . '\' AND (1=\'' . $_SESSION['mgrRole'] .
             '\' OR 1 = CASE WHEN tva.documentgroup IS NULL THEN 1 ELSE 0 END' .
             (!$docgrp ? '' : ' OR tva.documentgroup IN (' . $docgrp . ')') . ')',
             'tvtpl.rank, tv.rank, tv.id'
         );
 
-        while ($row = $this->evo->getDatabase()->getRow($sql)) {
+        while ($row = evo()->getDatabase()->getRow($sql)) {
             if ($row['value'] == '') {
                 $row['value'] = $row['default_text'];
             }
@@ -665,7 +659,9 @@ class templatesedit
                     '',
                     $data
                 );
-                $field = str_replace([' id="tv', ' name="tv'], [' id="', $data['required'] .$data['readonly'] . ' name="'], $field);
+                $field = str_replace([' id="tv', ' name="tv'],
+                    [' id="', $data['required'] . $data['readonly'] . ' name="'],
+                    $field);
                 if (!empty($data['rows']) && is_numeric($data['rows'])) {
                     $field = preg_replace('/rows="(.*?)"/is', 'rows="' . $data['rows'] . '"', $field);
                 }
@@ -732,7 +728,7 @@ class templatesedit
                             'name' => $key . 'check',
                             'class' => 'form-checkbox form-control ' . $data['class'],
                             'attr' => 'onclick="changestate(document.mutate.' . $key . ');" ' . $checked .
-                                $data['required'].$data['readonly'],
+                                $data['required'] . $data['readonly'],
                         ]);
                         $field .= $this->form('input', [
                             'type' => 'hidden',
@@ -750,11 +746,11 @@ class templatesedit
                         $rowClass .= ' form-row-date';
                         $field .= $this->form('date', [
                             'name' => $key,
-                            'value' => $value ? $this->evo->toDateFormat(
+                            'value' => $value ? evo()->toDateFormat(
                                 !is_numeric($value) ? strtotime($value) : $value
                             ) : '',
                             'class' => $data['class'],
-                            'placeholder' => $this->evo->getConfig('datetime_format') . ' HH:MM:SS',
+                            'placeholder' => evo()->getConfig('datetime_format') . ' HH:MM:SS',
                             'icon' => 'fa fa-calendar-times-o',
                             'icon.title' => $_lang['remove_date'],
                         ]);
@@ -826,15 +822,15 @@ class templatesedit
                         break;
 
                     case 'template':
-                        $rs = $this->evo->getDatabase()->select(
+                        $rs = evo()->getDatabase()->select(
                             't.templatename, t.id, c.category',
-                            $this->evo->getFullTableName('site_templates') . ' AS t LEFT JOIN ' .
-                            $this->evo->getFullTableName('categories') . ' AS c ON t.category = c.id',
+                            evo()->getFullTableName('site_templates') . ' AS t LEFT JOIN ' .
+                            evo()->getFullTableName('categories') . ' AS c ON t.category = c.id',
                             't.selectable=1',
                             'c.category, t.templatename ASC'
                         );
                         $optgroup = [];
-                        while ($row = $this->evo->getDatabase()->getRow($rs)) {
+                        while ($row = evo()->getDatabase()->getRow($rs)) {
                             $category = !empty($row['category']) ? $row['category'] : $_lang['no_category'];
                             $optgroup[$category][$row['id']] = $row['templatename'] . ' (' . $row['id'] . ')';
                         }
@@ -852,7 +848,7 @@ class templatesedit
 
                     case 'parent':
                         $parentLookup = false;
-                        $parentName = $this->evo->getConfig('site_name');
+                        $parentName = evo()->getConfig('site_name');
                         if (!empty($_REQUEST['id']) && !empty($this->doc['parent'])) {
                             $parentLookup = $this->doc['parent'];
                         } elseif (!empty($_REQUEST['pid'])) {
@@ -863,14 +859,14 @@ class templatesedit
                             $this->doc['parent'] = 0;
                         }
                         if ($parentLookup !== false && is_numeric($parentLookup)) {
-                            $rs = $this->evo->getDatabase()->select(
+                            $rs = evo()->getDatabase()->select(
                                 'pagetitle',
-                                $this->evo->getFullTableName('site_content'),
+                                evo()->getFullTableName('site_content'),
                                 'id=' . $parentLookup
                             );
-                            $parentName = $this->evo->getDatabase()->getValue($rs);
+                            $parentName = evo()->getDatabase()->getValue($rs);
                             if (!$parentName) {
-                                $this->evo->webAlertAndQuit($_lang["error_no_parent"]);
+                                evo()->webAlertAndQuit($_lang["error_no_parent"]);
                             }
                         }
                         $field .= $this->view('element', [
@@ -893,9 +889,9 @@ class templatesedit
                         break;
 
                     case 'type':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                        if ($_SESSION['mgrRole'] == 1 || evo()->getManagerApi()->action != 27 ||
                             $_SESSION['mgrInternalKey'] == $this->doc['createdby'] ||
-                            $this->evo->hasPermission('change_resourcetype')
+                            evo()->hasPermission('change_resourcetype')
                         ) {
                             $field .= $this->form('select', [
                                 'name' => 'type',
@@ -911,16 +907,16 @@ class templatesedit
                                 'type' => 'hidden',
                                 'name' => 'type',
                                 'value' => $this->doc['type'] != 'reference' &&
-                                $this->evo->getManagerApi()->action != 72 ? 'document' : 'reference',
+                                evo()->getManagerApi()->action != 72 ? 'document' : 'reference',
                             ]);
                         }
                         break;
 
                     case 'contentType':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                        if ($_SESSION['mgrRole'] == 1 || evo()->getManagerApi()->action != 27 ||
                             $_SESSION['mgrInternalKey'] == $this->doc['createdby']
                         ) {
-                            $custom_contenttype = $this->evo->getConfig('custom_contenttype') ? $this->evo->getConfig(
+                            $custom_contenttype = evo()->getConfig('custom_contenttype') ? evo()->getConfig(
                                 'custom_contenttype'
                             ) : 'text/html,text/plain,text/xml';
                             $options = explode(',', $custom_contenttype);
@@ -954,7 +950,7 @@ class templatesedit
                         break;
 
                     case 'content_dispo':
-                        if ($_SESSION['mgrRole'] == 1 || $this->evo->getManagerApi()->action != 27 ||
+                        if ($_SESSION['mgrRole'] == 1 || evo()->getManagerApi()->action != 27 ||
                             $_SESSION['mgrInternalKey'] == $this->doc['createdby']
                         ) {
                             $field .= $this->form('select', [
@@ -982,7 +978,7 @@ class templatesedit
                             'name' => $key,
                             'value' => htmlspecialchars(stripslashes($this->doc[$key]), ENT_COMPAT),
                             'class' => 'form-control ' . $data['class'],
-                            'attr' => 'spellcheck="true"' . $data['required'].$data['readonly'] . $data['pattern'],
+                            'attr' => 'spellcheck="true"' . $data['required'] . $data['readonly'] . $data['pattern'],
                         ]);
                         break;
                 }
@@ -1040,11 +1036,11 @@ class templatesedit
             }
         }
 
-        if ($this->evo->getConfig('use_editor') == 1 && ($data['type'] == 'richtext' || $data['type'] == 'htmlarea')) {
-            $tvOptions = $this->evo->parseProperties($data['elements']);
-            $editor = $this->evo->getConfig('which_editor');
+        if (evo()->getConfig('use_editor') == 1 && ($data['type'] == 'richtext' || $data['type'] == 'htmlarea')) {
+            $tvOptions = evo()->parseProperties($data['elements']);
+            $editor = evo()->getConfig('which_editor');
             if (!empty($tvOptions)) {
-                $editor = $tvOptions['editor'] ?? $this->evo->getConfig('which_editor');
+                $editor = $tvOptions['editor'] ?? evo()->getConfig('which_editor');
             }
             $this->richtexteditorIds[$editor][] = $key;
             $this->richtexteditorOptions[$editor][$key] = $tvOptions;
@@ -1111,7 +1107,7 @@ class templatesedit
                     'name' => $isTv ? 'tv' . $data['id'] : $key,
                     'value' => $isTv ? ($data['value'] ? MODX_SITE_URL . $data['value'] : '')
                         : ($value ? MODX_SITE_URL . $value : ''),
-                    'width' => $this->evo->getConfig('thumbWidth'),
+                    'width' => evo()->getConfig('thumbWidth'),
                 ]);
             }
 
@@ -1136,7 +1132,7 @@ class templatesedit
                     'none' => $_lang['none'],
                 ];
 
-                $evtOut = $this->evo->invokeEvent('OnRichTextEditorRegister');
+                $evtOut = evo()->invokeEvent('OnRichTextEditorRegister');
                 if (is_array($evtOut)) {
                     for ($i = 0; $i < count($evtOut); $i++) {
                         $editor = $evtOut[$i];
@@ -1148,7 +1144,7 @@ class templatesedit
                         'class' => 'select-which-editor',
                         'content' => $this->form('select', [
                             'name' => 'which_editor',
-                            'value' => $this->evo->getConfig('which_editor'),
+                            'value' => evo()->getConfig('which_editor'),
                             'options' => $options,
                             'class' => 'form-control form-control-sm',
                             'onchange' => 'changeRTE();',
@@ -1304,18 +1300,18 @@ class templatesedit
         $out = '';
         $separator = is_bool($separator) ? ', ' : htmlspecialchars($separator, ENT_COMPAT);
 
-        $rs = $this->evo->getDatabase()
+        $rs = evo()->getDatabase()
             ->query(
                 '
             SELECT value
-            FROM ' . $this->evo->getFullTableName('site_tmplvar_contentvalues') . '
+            FROM ' . evo()->getFullTableName('site_tmplvar_contentvalues') . '
             WHERE tmplvarid=' . $id . '
             GROUP BY value
             ORDER BY value ASC
         '
             );
 
-        $rs = $this->evo->getDatabase()->makeArray($rs);
+        $rs = evo()->getDatabase()->makeArray($rs);
 
         if (count($rs)) {
             $out .= '<div class="choicesList" data-target="tv' . $id . '" data-separator="' . $separator . '">';
@@ -1367,7 +1363,7 @@ class templatesedit
                                     if (is_array($v)) {
                                         $v = implode('||', $v);
                                     }
-                                    $data[$k] = $this->evo->getDatabase()->escape($v);
+                                    $data[$k] = evo()->getDatabase()->escape($v);
                                 }
                             } else {
                                 $data[$k] = $v['default'] ?? '';
@@ -1378,7 +1374,7 @@ class templatesedit
             }
 
             if (!empty($data)) {
-                $this->evo->getDatabase()->update($data, '[+prefix+]site_content', 'id=' . $id);
+                evo()->getDatabase()->update($data, '[+prefix+]site_content', 'id=' . $id);
             }
         }
     }
@@ -1395,7 +1391,7 @@ class templatesedit
         if (!empty($name)) {
             $params = [
                 'data' => $data,
-                'modx' => $this->evo,
+                'modx' => evo(),
                 '_TE' => $this,
                 'mode' => $mode,
             ];
@@ -1403,7 +1399,7 @@ class templatesedit
             if ((is_object($name)) || is_callable($name)) {
                 $data = call_user_func_array($name, $params);
             } else {
-                $data = $this->evo->runSnippet($name, $params);
+                $data = evo()->runSnippet($name, $params);
             }
         }
 

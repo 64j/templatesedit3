@@ -13,71 +13,65 @@ declare(strict_types=1);
 class templateseditbuilder
 {
     /**
-     * @var DocumentParser
+     * @var array
      */
-    protected $evo;
+    protected array $lang;
 
     /**
      * @var array
      */
-    protected $lang;
+    protected array $params;
 
     /**
      * @var array
      */
-    protected $params;
-
-    /**
-     * @var array
-     */
-    protected $config;
+    protected array $config;
 
     /**
      * @var string
      */
-    protected $basePath;
+    protected string $basePath;
 
     /**
      * @var array
      */
-    protected $defaultFields = [];
+    protected array $defaultFields = [];
 
     /**
      * @var array
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     /**
      * @var array
      */
-    protected $defaultTvars = [];
+    protected array $defaultTvars = [];
 
     /**
      * @var array
      */
-    protected $tvars = [];
+    protected array $tvars = [];
 
     /**
      * @var array
      */
-    protected $defaultCategories = [];
+    protected array $defaultCategories = [];
 
     /**
      * @var array
      */
-    protected $categories = [];
+    protected array $categories = [];
 
     /**
      * @var array
      */
-    protected $fieldTypes = [];
+    protected array $fieldTypes = [];
 
     /**
      *
      */
     public function __construct()
     {
-        $this->evo = evolutionCMS();
         $this->basePath = dirname(__DIR__) . '/';
 
         $this->getTranslate();
@@ -124,7 +118,7 @@ class templateseditbuilder
      */
     protected function setParams(): void
     {
-        $this->params = $this->evo->event->params;
+        $this->params = evo()->event->params;
         $this->params['excludeTvCategory'] = !empty($this->params['excludeTvCategory']) ? array_map(
             'trim',
             explode(',', $this->params['excludeTvCategory'])
@@ -216,9 +210,9 @@ class templateseditbuilder
     public function renderSelectRole(): string
     {
         $users = [];
-        $sql = $this->evo->getDatabase()->select('id, name', $this->evo->getFullTableName('user_roles'), '', 'id asc');
+        $sql = evo()->getDatabase()->select('id, name', evo()->getFullTableName('user_roles'), '', 'id asc');
 
-        while ($row = $this->evo->getDatabase()->getRow($sql)) {
+        while ($row = evo()->getDatabase()->getRow($sql)) {
             $pf = '&nbsp;&nbsp;&nbsp; ';
             if (is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') ||
                 (!is_file($this->basePath . 'configs/template__' . $this->params['id'] . '__' . $row['id'] . '.json') &&
@@ -339,7 +333,7 @@ class templateseditbuilder
     {
         $this->defaultFields = require_once $this->basePath . 'configs/fields.php';
 
-        if (version_compare($this->evo->getConfig('settings_version'), '3.1.0') >= 0) {
+        if (version_compare(evo()->getConfig('settings_version'), '3.1.0') >= 0) {
             $position = array_search('donthit', array_keys($this->defaultFields));
             $fieldsBefore = array_slice($this->defaultFields, 0, $position);
             $fieldsAfter = array_slice($this->defaultFields, $position + 1);
@@ -364,11 +358,11 @@ class templateseditbuilder
         global $_lang;
 
         if ($this->params['id']) {
-            $sql = $this->evo->getDatabase()->query(
+            $sql = evo()->getDatabase()->query(
                 '
                 SELECT tv.id, tv.name, tv.caption AS title, tv.description, tv.category
-                FROM ' . $this->evo->getFullTableName('site_tmplvar_templates') . ' AS tt
-                LEFT JOIN ' . $this->evo->getFullTableName('site_tmplvars') . ' AS tv ON tv.id=tt.tmplvarid
+                FROM ' . evo()->getFullTableName('site_tmplvar_templates') . ' AS tt
+                LEFT JOIN ' . evo()->getFullTableName('site_tmplvars') . ' AS tv ON tv.id=tt.tmplvarid
                 WHERE templateid=' . $this->params['id'] . '
                 ORDER BY tt.rank DESC, tv.rank DESC, tv.caption DESC, tv.id DESC
             '
@@ -376,7 +370,7 @@ class templateseditbuilder
 
             $this->defaultCategories = [];
 
-            while ($row = $this->evo->getDatabase()->getRow($sql)) {
+            while ($row = evo()->getDatabase()->getRow($sql)) {
                 $this->defaultTvars[$row['name']] = $row;
                 $this->defaultCategories[$row['category']] = $row['category'];
             }
@@ -398,15 +392,15 @@ class templateseditbuilder
     protected function getDefaultCategories(): array
     {
         if (!empty($this->defaultCategories)) {
-            $sql = $this->evo->getDatabase()->query(
+            $sql = evo()->getDatabase()->query(
                 '
                 SELECT *, category AS title
-                FROM ' . $this->evo->getFullTableName('categories') . '
+                FROM ' . evo()->getFullTableName('categories') . '
                 ORDER BY category
             '
             );
 
-            while ($row = $this->evo->getDatabase()->getRow($sql)) {
+            while ($row = evo()->getDatabase()->getRow($sql)) {
                 $this->defaultCategories[$row['id']] = $row;
             }
         }
@@ -533,7 +527,7 @@ class templateseditbuilder
     public function saveTemplate(): void
     {
         if (isset($_POST['templatesedit_builder_data'])) {
-            $data = $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_data']);
+            $data = evo()->removeSanitizeSeed($_POST['templatesedit_builder_data']);
 
             if (!empty($data)) {
                 if ($this->params['check_default_config'] == $this->params['id'] ||
@@ -598,7 +592,7 @@ class templateseditbuilder
                     break;
             }
         } elseif (isset($_POST['templatesedit_builder_code'])) {
-            $data = $this->evo->removeSanitizeSeed($_POST['templatesedit_builder_code']);
+            $data = evo()->removeSanitizeSeed($_POST['templatesedit_builder_code']);
 
             if ($data == '') {
                 $data = '<?php ' . "\n" . 'return [];' . "\n";
@@ -636,7 +630,7 @@ class templateseditbuilder
      */
     protected function getTranslate(): array
     {
-        $manager_language = $this->evo->getConfig('manager_language');
+        $manager_language = evo()->getConfig('manager_language');
         if (file_exists($this->basePath . 'lang/' . $manager_language . '.php')) {
             $this->lang = require_once $this->basePath . 'lang/' . $manager_language . '.php';
         } else {
